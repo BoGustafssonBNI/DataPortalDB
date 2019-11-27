@@ -65,7 +65,7 @@ public struct DBParameter {
         }
     }
     
-    func delete(db: Connection) throws -> Void {
+    public func delete(db: Connection) throws -> Void {
         let query = DBTable.Parameter.table.filter(Expressions.id == Int64(id))
         do {
             let tmp = try db.run(query.delete())

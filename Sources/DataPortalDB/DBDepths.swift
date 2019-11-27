@@ -93,7 +93,7 @@ public struct DBDepths {
     }
     
 
-    func delete (db: Connection) throws -> Void {
+    public func delete (db: Connection) throws -> Void {
         let query =  DBTable.Depths.table.filter(Expressions.id == Int64(id))
         do {
             let tmp = try db.run(query.delete())

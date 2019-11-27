@@ -101,7 +101,7 @@ public struct DBData {
     }
     
 
-    func delete (dbTable: DBTable, db: Connection) throws -> Void {
+    public func delete (dbTable: DBTable, db: Connection) throws -> Void {
         let query = dbTable.table.filter(Expressions.id == Int64(id))
         do {
             let tmp = try db.run(query.delete())

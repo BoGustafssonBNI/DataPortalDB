@@ -70,15 +70,15 @@ public struct DBstation {
     }
     
     
-    init(){}
-    init(id: Int, name: String, intLat: Int, intLon: Int, intDist: Int) {
+    public init(){}
+    public init(id: Int, name: String, intLat: Int, intLon: Int, intDist: Int) {
         self.id = id
         self.name = name
         self.intLat = intLat
         self.intLon = intLon
         self.intDist = intDist
      }
-    init(id id64: Int64, name: String, intLat intLat64: Int64, intLon intLon64: Int64, intDist intDist64: Int64) {
+    public init(id id64: Int64, name: String, intLat intLat64: Int64, intLon intLon64: Int64, intDist intDist64: Int64) {
         self.id = Int(id64)
         self.name = name
         self.intLat = Int(intLat64)
@@ -122,7 +122,7 @@ public struct DBstation {
         }
     }
     
-    func delete (db: Connection) throws -> Void {
+    public func delete (db: Connection) throws -> Void {
          let query = DBTable.Stations.table.filter(Expressions.id == Int64(id))
         do {
             let tmp = try db.run(query.delete())
