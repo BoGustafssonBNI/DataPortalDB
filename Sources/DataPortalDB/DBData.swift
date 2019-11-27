@@ -49,7 +49,7 @@ public struct DBData {
         self.value = value
     }
     
-    static func createTable(dbTable: DBTable, db: Connection) throws {
+    public static func createTable(dbTable: DBTable, db: Connection) throws {
          do {
             try db.run(dbTable.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
