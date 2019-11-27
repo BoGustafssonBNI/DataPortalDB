@@ -12,12 +12,12 @@ import SQLite
 
 
 
-struct DBParameter {
-    var id = 0
-    var name = ""
-    struct TableDescription {
-        static let id = "id"
-        static let name = "name"
+public struct DBParameter {
+    public var id = 0
+    public var name = ""
+    public struct TableDescription {
+        public static let id = "id"
+        public static let name = "name"
     }
     
     struct Expressions {
@@ -26,17 +26,17 @@ struct DBParameter {
      }
     
     
-    init(){}
-    init(id: Int, name: String) {
+    public init(){}
+    public init(id: Int, name: String) {
         self.id = id
         self.name = name
     }
-    init(id id64: Int64, name: String) {
+    public init(id id64: Int64, name: String) {
         self.id = Int(id64)
         self.name = name
     }
     
-    static func createTable(db: Connection) throws {
+    public static func createTable(db: Connection) throws {
         do {
             try db.run(DBTable.Parameter.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
@@ -46,7 +46,7 @@ struct DBParameter {
             throw DBError.TableCreateError
         }
     }
-    static func deleteTable(db: Connection) throws {
+    public static func deleteTable(db: Connection) throws {
         do {
             try db.run(DBTable.Parameter.table.delete())
         } catch {
@@ -55,7 +55,7 @@ struct DBParameter {
     }
 
     
-    mutating func insert(db: Connection) throws {
+    public mutating func insert(db: Connection) throws {
          let insertStatement = DBTable.Parameter.table.insert(Expressions.name <- name)
         do {
             let rowID = try db.run(insertStatement)
@@ -77,7 +77,7 @@ struct DBParameter {
         }
     }
     
-    mutating func existOrInsert(db: Connection) throws {
+    public mutating func existOrInsert(db: Connection) throws {
         let expression = Expressions.name == name
         let query = DBTable.Parameter.table.select(distinct: Expressions.id).filter(expression)
         do {
@@ -100,7 +100,7 @@ struct DBParameter {
         }
     }
     
-    static func find(id: Int, db: Connection) throws -> DBParameter? {
+    public static func find(id: Int, db: Connection) throws -> DBParameter? {
         let query = DBTable.Parameter.table.filter(Expressions.id == Int64(id))
         do {
             let items = try db.prepare(query)
@@ -113,7 +113,7 @@ struct DBParameter {
         return nil
     }
     
-    static func find(name: String, db: Connection) throws -> DBParameter? {
+    public static func find(name: String, db: Connection) throws -> DBParameter? {
         let query = DBTable.Parameter.table.filter(Expressions.name == name)
         do {
             let items = try db.prepare(query)
@@ -126,7 +126,7 @@ struct DBParameter {
         return nil
     }
 
-    static func findAll(db: Connection) throws -> [DBParameter] {
+    public static func findAll(db: Connection) throws -> [DBParameter] {
         var retArray = [DBParameter]()
         do {
             let items = try db.prepare(DBTable.Parameter.table)
@@ -139,7 +139,7 @@ struct DBParameter {
         
         return retArray
     }
-    static func numberOfEntries(db: Connection) throws -> Int {
+    public static func numberOfEntries(db: Connection) throws -> Int {
         do {
             let count = try db.scalar(DBTable.Parameter.table.count)
             return count

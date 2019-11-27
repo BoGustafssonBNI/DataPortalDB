@@ -12,18 +12,18 @@ import SQLite
 
 
 
-struct DBProfile {
-    var id = 0
-    var stationID = 0
-    var serverID = ""
-    var originatorID = 0
-    var date = Date()
-    struct TableDescription {
-        static let id = "id"
-        static let stationID = "stationID"
-        static let serverID = "serverID"
-        static let originatorID = "originatorID"
-        static let date = "date"
+public struct DBProfile {
+    public var id = 0
+    public var stationID = 0
+    public var serverID = ""
+    public var originatorID = 0
+    public var date = Date()
+    public struct TableDescription {
+        public static let id = "id"
+        public static let stationID = "stationID"
+        public static let serverID = "serverID"
+        public static let originatorID = "originatorID"
+        public static let date = "date"
     }
     
     struct Expressions {
@@ -35,15 +35,15 @@ struct DBProfile {
     }
     
     
-    init(){}
-    init(id: Int, stationID: Int, serverID: String, originatorID: Int, date: Date) {
+    public init(){}
+    public init(id: Int, stationID: Int, serverID: String, originatorID: Int, date: Date) {
         self.id = id
         self.stationID = stationID
         self.serverID = serverID
         self.originatorID = originatorID
         self.date = date
     }
-    init(id id64: Int64, stationID stationID64: Int64, serverID: String, originatorID originatorID64: Int64, date: Date) {
+    public init(id id64: Int64, stationID stationID64: Int64, serverID: String, originatorID originatorID64: Int64, date: Date) {
         self.id = Int(id64)
         self.stationID = Int(stationID64)
         self.serverID = serverID
@@ -51,7 +51,7 @@ struct DBProfile {
         self.date = date
     }
     
-    static func createTable(db: Connection) throws {
+    public static func createTable(db: Connection) throws {
         do {
             try db.run(DBTable.Profiles.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
@@ -64,14 +64,14 @@ struct DBProfile {
             throw DBError.TableCreateError
         }
     }
-    static func deleteTable(db: Connection) throws {
+    public static func deleteTable(db: Connection) throws {
         do {
             try db.run(DBTable.Profiles.table.delete())
         } catch {
             throw DBError.TableDeleteError
         }
     }
-    static func createIndex(db: Connection) throws {
+    public static func createIndex(db: Connection) throws {
          do {
             try db.run(DBTable.Profiles.table.createIndex(Expressions.stationID, Expressions.date, ifNotExists: true))
         } catch {
@@ -80,7 +80,7 @@ struct DBProfile {
     }
 
     
-    mutating func insert(db: Connection) throws {
+    public mutating func insert(db: Connection) throws {
         let insertStatement = DBTable.Profiles.table.insert(Expressions.stationID <- Int64(stationID),
                                                            Expressions.serverID <- serverID,
                                                            Expressions.originatorID <- Int64(originatorID),
@@ -105,7 +105,7 @@ struct DBProfile {
         }
     }
     
-    mutating func existOrInsert(db: Connection) throws {
+    public mutating func existOrInsert(db: Connection) throws {
         let expression = Expressions.stationID == Int64(stationID) && Expressions.serverID == serverID && Expressions.originatorID == Int64(originatorID) && Expressions.date == date
         let query = DBTable.Profiles.table.select(distinct: Expressions.id).filter(expression)
         do {
@@ -128,7 +128,7 @@ struct DBProfile {
         }
     }
     
-    static func find(id: Int, db: Connection) throws -> DBProfile? {
+    public static func find(id: Int, db: Connection) throws -> DBProfile? {
          let query = DBTable.Profiles.table.filter(Expressions.id == Int64(id))
         do {
             let items = try db.prepare(query)
@@ -140,7 +140,7 @@ struct DBProfile {
         }
         return nil
     }
-    static func find(stationID: Int, db: Connection) throws -> [DBProfile] {
+    public static func find(stationID: Int, db: Connection) throws -> [DBProfile] {
         let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID)).order(Expressions.date.asc)
         var retArray = [DBProfile]()
         do {
@@ -154,7 +154,7 @@ struct DBProfile {
         return retArray
     }
 
-    static func findAll(db: Connection) throws -> [DBProfile] {
+    public static func findAll(db: Connection) throws -> [DBProfile] {
          var retArray = [DBProfile]()
         do {
             let items = try db.prepare(DBTable.Profiles.table)
@@ -168,7 +168,7 @@ struct DBProfile {
         return retArray
     }
     
-    static func numberOfEntries(db: Connection) throws -> Int {
+    public static func numberOfEntries(db: Connection) throws -> Int {
         do {
             let count = try db.scalar(DBTable.Profiles.table.count)
             return count
@@ -176,7 +176,7 @@ struct DBProfile {
             throw DBError.SearchError
         }
     }
-    static func numberOfEntries(stationID: Int, db: Connection) throws -> Int {
+    public static func numberOfEntries(stationID: Int, db: Connection) throws -> Int {
         let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID)).count
         do {
             let count = try db.scalar(query)

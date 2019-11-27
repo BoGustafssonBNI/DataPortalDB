@@ -12,53 +12,53 @@ import SQLite
 
 
 
-struct DBstation {
-    var id = 0
-    var name = ""
-    var intLat = 0
-    var intLon = 0
-    var intDist = 0
+public struct DBstation {
+    public var id = 0
+    public var name = ""
+    public var intLat = 0
+    public var intLon = 0
+    public var intDist = 0
     private func intPos2Dec(pos: Int) -> Double {
         let intDeg = pos/100
         let intMin = pos - intDeg * 100
         return Double(intDeg) + Double(intMin)/60.0
     }
-    var lat : Double {
+    public var lat : Double {
         get {
             return intPos2Dec(pos: intLat)
         }
     }
-    var lon : Double {
+    public var lon : Double {
         get {
             return intPos2Dec(pos: intLon)
         }
     }
-    var latMin : Double {
+    public var latMin : Double {
         get {
             return lat - Double(intDist)/60.0
         }
     }
-    var latMax : Double {
+    public var latMax : Double {
         get {
             return lat + Double(intDist)/60.0
         }
     }
-    var lonMin : Double {
+    public var lonMin : Double {
         get {
             return lon - Double(intDist)/60.0
         }
     }
-    var lonMax : Double {
+    public var lonMax : Double {
         get {
             return lon + Double(intDist)/60.0
         }
     }
-    struct TableDescription {
-        static let id = "id"
-        static let name = "name"
-        static let intLat = "latitude"
-        static let intLon = "longitude"
-        static let intDist = "distance"
+    public struct TableDescription {
+        public static let id = "id"
+        public static let name = "name"
+        public static let intLat = "latitude"
+        public static let intLon = "longitude"
+        public static let intDist = "distance"
     }
     
     struct Expressions {
@@ -86,7 +86,7 @@ struct DBstation {
         self.intDist = Int(intDist64)
     }
     
-    static func createTable(db: Connection) throws {
+    public static func createTable(db: Connection) throws {
          do {
             try db.run(DBTable.Stations.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
@@ -99,7 +99,7 @@ struct DBstation {
             throw DBError.TableCreateError
         }
     }
-    static func deleteTable(db: Connection) throws {
+    public static func deleteTable(db: Connection) throws {
           do {
             try db.run(DBTable.Stations.table.delete())
         } catch {
@@ -109,7 +109,7 @@ struct DBstation {
     }
     
     
-    mutating func insert(db: Connection) throws {
+    public mutating func insert(db: Connection) throws {
          let insertStatement = DBTable.Stations.table.insert(Expressions.name <- name,
                                                            Expressions.intLat <- Int64(intLat),
                                                            Expressions.intLon <- Int64(intLon),
@@ -134,7 +134,7 @@ struct DBstation {
         }
     }
     
-    mutating func existOrInsert(db: Connection) throws {
+    public mutating func existOrInsert(db: Connection) throws {
         let expression = Expressions.name == name && Expressions.intLat == Int64(intLat) && Expressions.intLon == Int64(intLon) && Expressions.intDist == Int64(intDist)
         let query = DBTable.Stations.table.select(distinct: Expressions.id).filter(expression)
         do {
@@ -157,7 +157,7 @@ struct DBstation {
         }
     }
     
-    static func find(id: Int, db: Connection) throws -> DBstation? {
+    public static func find(id: Int, db: Connection) throws -> DBstation? {
          let query = DBTable.Stations.table.filter(Expressions.id == Int64(id))
         do {
             let items = try db.prepare(query)
@@ -170,13 +170,13 @@ struct DBstation {
         return nil
     }
     
-    enum DataTypes {
+    public enum DataTypes {
         case intLat
         case intLon
         case intDist
     }
     
-    static func update(id: Int, for variable: DataTypes, value: Int, db: Connection) throws -> Int {
+    public static func update(id: Int, for variable: DataTypes, value: Int, db: Connection) throws -> Int {
         let query = DBTable.Stations.table.filter(Expressions.id == Int64(id))
         
         do {
@@ -195,7 +195,7 @@ struct DBstation {
             throw DBError.UpdateError
         }
     }
-    static func update(id: Int, name: String, db: Connection) throws -> Int {
+    public static func update(id: Int, name: String, db: Connection) throws -> Int {
         let query = DBTable.Stations.table.filter(Expressions.id == Int64(id))
         
         do {
@@ -206,7 +206,7 @@ struct DBstation {
         }
     }
     
-    static func numberOfEntries(db: Connection) throws -> Int {
+    public static func numberOfEntries(db: Connection) throws -> Int {
         do {
             let count = try db.scalar(DBTable.Stations.table.count)
             return count
@@ -215,7 +215,7 @@ struct DBstation {
         }
     }
 
-    static func findAll(db: Connection) throws -> [DBstation] {
+    public static func findAll(db: Connection) throws -> [DBstation] {
          var retArray = [DBstation]()
         do {
             let items = try db.prepare(DBTable.Stations.table)

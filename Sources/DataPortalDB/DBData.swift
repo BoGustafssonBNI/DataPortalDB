@@ -10,19 +10,19 @@ import Foundation
 import SQLite
 
 
-struct DBData {
-    var id = 0
-    var profileID = 0
-    var depthID = 0
-    var parameterID = 0
-    var value = 0.0
+public struct DBData {
+    public var id = 0
+    public var profileID = 0
+    public var depthID = 0
+    public var parameterID = 0
+    public var value = 0.0
 
-    struct TableDescription {
-        static let id = "id"
-        static let profileID = "profileID"
-        static let depthID = "depthID"
-        static let parameterID = "parameterID"
-        static let value = "value"
+    public struct TableDescription {
+        public static let id = "id"
+        public static let profileID = "profileID"
+        public static let depthID = "depthID"
+        public static let parameterID = "parameterID"
+        public static let value = "value"
     }
     
     struct Expressions {
@@ -33,8 +33,8 @@ struct DBData {
         static let value = Expression<Double>(TableDescription.value)
     }
     
-    init(){}
-    init(id: Int, profileID: Int, depthID: Int, parameterID: Int, value: Double) {
+    public init(){}
+    public init(id: Int, profileID: Int, depthID: Int, parameterID: Int, value: Double) {
         self.id = id
         self.profileID = profileID
         self.depthID = depthID
@@ -62,7 +62,7 @@ struct DBData {
             throw DBError.TableCreateError
         }
     }
-    static func deleteTable(dbTable: DBTable, db: Connection) throws {
+    public static func deleteTable(dbTable: DBTable, db: Connection) throws {
         do {
             try db.run(dbTable.table.delete())
         } catch {
@@ -70,7 +70,7 @@ struct DBData {
         }
     }
 
-    static func createIndex(dbTable: DBTable, db: Connection) throws {
+    public static func createIndex(dbTable: DBTable, db: Connection) throws {
          do {
             try db.run(dbTable.table.createIndex(Expressions.profileID, ifNotExists: true))
         } catch {
@@ -79,7 +79,7 @@ struct DBData {
     }
 
     
-    mutating func insert(dbTable: DBTable, db: Connection) throws {
+    public mutating func insert(dbTable: DBTable, db: Connection) throws {
         let insertStatement = dbTable.table.insert(Expressions.profileID <- Int64(profileID),
                                                    Expressions.depthID <- Int64(depthID),
                                                    Expressions.parameterID <- Int64(parameterID),
@@ -91,7 +91,7 @@ struct DBData {
             throw DBError.InsertError
         }
     }
-    mutating func insert(db: Connection, insertStatement: Statement) throws {
+    public mutating func insert(db: Connection, insertStatement: Statement) throws {
         do {
             let rowID = try insertStatement.run(Int64(profileID), Int64(depthID), Int64(parameterID), value)
             //                id = Int(rowID)
@@ -113,7 +113,7 @@ struct DBData {
         }
     }
     
-    mutating func existOrInsert(dbTable: DBTable, db: Connection) throws {
+    public mutating func existOrInsert(dbTable: DBTable, db: Connection) throws {
         let expression = Expressions.profileID == Int64(profileID) && Expressions.depthID == Int64(depthID) && Expressions.parameterID == Int64(parameterID)
         let query = dbTable.table.select(distinct: Expressions.id).filter(expression)
         do {
@@ -134,7 +134,7 @@ struct DBData {
             throw DBError.SearchError
         }
     }
-    mutating func existOrInsert(dbTable: DBTable, db: Connection, insertStatement: Statement) throws {
+    public mutating func existOrInsert(dbTable: DBTable, db: Connection, insertStatement: Statement) throws {
         let expression = Expressions.profileID == Int64(profileID) && Expressions.depthID == Int64(depthID) && Expressions.parameterID == Int64(parameterID)
         let query = dbTable.table.select(distinct: Expressions.id).filter(expression)
         do {
@@ -156,7 +156,7 @@ struct DBData {
         }
     }
 
-    static func update(id: Int, value: Double, dbTable: DBTable, db: Connection) throws -> Int {
+    public static func update(id: Int, value: Double, dbTable: DBTable, db: Connection) throws -> Int {
         let query = dbTable.table.filter(Expressions.id == Int64(id))
         do {
             let result = try db.run(query.update(Expressions.value <- value))
@@ -166,7 +166,7 @@ struct DBData {
         }
     }
     
-    static func find(id: Int, dbTable: DBTable, db: Connection) throws -> DBData? {
+    public static func find(id: Int, dbTable: DBTable, db: Connection) throws -> DBData? {
         let query = dbTable.table.filter(Expressions.id == Int64(id))
         do {
             let items = try db.prepare(query)
@@ -178,7 +178,7 @@ struct DBData {
         }
         return nil
     }
-    static func find(profileID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
+    public static func find(profileID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID))
         var retArray = [DBData]()
         do {
@@ -192,7 +192,7 @@ struct DBData {
         
         return retArray
     }
-    static func find(profileID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
+    public static func find(profileID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.depthID == Int64(depthID))
         var retArray = [DBData]()
         do {
@@ -207,7 +207,7 @@ struct DBData {
         return retArray
     }
 
-    static func find(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
+    public static func find(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID)).order(Expressions.depthID.asc)
         var retArray = [DBData]()
         do {
@@ -222,7 +222,7 @@ struct DBData {
         return retArray
     }
 
-    static func find(profileID: Int, parameterID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
+    public static func find(profileID: Int, parameterID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> [DBData] {
          let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID) && Expressions.depthID == Int64(depthID))
         var retArray = [DBData]()
         do {
@@ -237,7 +237,7 @@ struct DBData {
         return retArray
     }
 
-    static func findAll(dbTable: DBTable, db: Connection) throws -> [DBData] {
+    public static func findAll(dbTable: DBTable, db: Connection) throws -> [DBData] {
          var retArray = [DBData]()
         do {
             let items = try db.prepare(dbTable.table)
@@ -250,7 +250,7 @@ struct DBData {
         
         return retArray
     }
-    static func findMax(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> Double? {
+    public static func findMax(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> Double? {
         let command : String
         let statement : Statement
         command = "SELECT max(\(TableDescription.value)) FROM \(dbTable.tableName) WHERE (\(TableDescription.profileID) = ?) AND (\(TableDescription.parameterID) = ?)"
@@ -265,7 +265,7 @@ struct DBData {
         
         return nil
     }
-    static func findMin(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> Double? {
+    public static func findMin(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> Double? {
         let command : String
         let statement : Statement
         command = "SELECT min(\(TableDescription.value)) FROM \(dbTable.tableName) WHERE (\(TableDescription.profileID) = ?) AND (\(TableDescription.parameterID) = ?)"
@@ -281,7 +281,7 @@ struct DBData {
         return nil
     }
     
-    static func find(profileIDRange: Range<Int>, parameterID: Int, at value: Double, with tolerance: Double, from dbTable: DBTable, and db: Connection) throws -> [DBData] {
+    public static func find(profileIDRange: Range<Int>, parameterID: Int, at value: Double, with tolerance: Double, from dbTable: DBTable, and db: Connection) throws -> [DBData] {
         var retArray = [DBData]()
         let query = dbTable.table.filter(Expressions.profileID >= Int64(profileIDRange.lowerBound) && Expressions.profileID <= Int64(profileIDRange.upperBound) && Expressions.parameterID == Int64(parameterID) && Expressions.value >= value - tolerance && Expressions.value <= value + tolerance)
         do {
@@ -295,7 +295,7 @@ struct DBData {
             throw DBError.SearchError
         }
     }
-    static func find(profileIDRange: Range<Int>, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [Double] {
+    public static func find(profileIDRange: Range<Int>, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [Double] {
         var result = [Double]()
         let query = dbTable.table.filter(Expressions.profileID >= Int64(profileIDRange.lowerBound) && Expressions.profileID <= Int64(profileIDRange.upperBound) && Expressions.parameterID == Int64(parameterID))
         do {
@@ -310,7 +310,7 @@ struct DBData {
 
     }
 
-    static func numberOfEntries(profileID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+    public static func numberOfEntries(profileID: Int, dbTable: DBTable, db: Connection) throws -> Int {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID)).count
         do {
             let count = try db.scalar(query)
@@ -320,7 +320,7 @@ struct DBData {
         }
     }
 
-    static func numberOfEntries(profileID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+    public static func numberOfEntries(profileID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> Int {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.depthID == Int64(depthID)).count
         do {
             let count = try db.scalar(query)
@@ -331,7 +331,7 @@ struct DBData {
     }
 
     
-    static func numberOfEntries(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+    public static func numberOfEntries(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> Int {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID)).count
         do {
             let count = try db.scalar(query)
@@ -342,7 +342,7 @@ struct DBData {
     }
 
     
-    static func numberOfEntries(profileID: Int, parameterID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+    public static func numberOfEntries(profileID: Int, parameterID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> Int {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID) && Expressions.depthID == Int64(depthID)).count
          do {
             let count = try db.scalar(query)
@@ -353,7 +353,7 @@ struct DBData {
     }
 
     
-    static func numberOfEntries(dbTable: DBTable, db: Connection) throws -> Int {
+    public static func numberOfEntries(dbTable: DBTable, db: Connection) throws -> Int {
         do {
             let count = try db.scalar(dbTable.table.count)
             return count

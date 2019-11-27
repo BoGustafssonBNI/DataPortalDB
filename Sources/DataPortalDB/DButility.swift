@@ -11,22 +11,22 @@ import SQLite
 
 
 
-struct DBTable {
-    static let DataRecords = DBTable(tableName: "dataRecords")
-    static let Stations = DBTable(tableName: "stations")
-    static let Depths = DBTable(tableName: "depths")
-    static let Profiles = DBTable(tableName: "profiles")
-    static let Parameter = DBTable(tableName: "parameters")
-    var tableName = String()
-    var table : Table {
+public struct DBTable {
+    public static let DataRecords = DBTable(tableName: "dataRecords")
+    public static let Stations = DBTable(tableName: "stations")
+    public static let Depths = DBTable(tableName: "depths")
+    public static let Profiles = DBTable(tableName: "profiles")
+    public static let Parameter = DBTable(tableName: "parameters")
+    public var tableName = String()
+    public var table : Table {
         get {
             return Table(tableName)
         }
     }
 }
 
-enum DBError: Error, CustomStringConvertible {
-    var description: String {
+public enum DBError: Error, CustomStringConvertible {
+    public var description: String {
         get {
             switch self {
             case .DatastoreConnectionError:
@@ -61,14 +61,14 @@ enum DBError: Error, CustomStringConvertible {
     case CouldNotCreateIndexError
 }
 
-enum DBFilehandlingError: Error, CustomStringConvertible {
+public enum DBFilehandlingError: Error, CustomStringConvertible {
     case NoFileToSaveTo
     case BackupFileCouldNotBeCreated
     case CopyInNewFileFailed
     case CopyToDiskFileFailed
     case CouldNotFindBundlePath
     case WorkingFileDoesNotExist
-    var description: String {
+    public var description: String {
         get {
             switch self {
             case .NoFileToSaveTo:
@@ -88,24 +88,24 @@ enum DBFilehandlingError: Error, CustomStringConvertible {
     }
 }
 
-class DButility {
-    static let WorkingDBFilename = "dataPortal.sqlite"
-    static let LastGoodFilename = "dataPortalBackup.sqlite"
+public class DButility {
+    public static let WorkingDBFilename = "dataPortal.sqlite"
+    public static let LastGoodFilename = "dataPortalBackup.sqlite"
     static let ResourcePath = Bundle.main.resourcePath!
-    static let WorkingPath = ResourcePath + "/" + WorkingDBFilename
-    static let LastGoodPath = ResourcePath + "/" + LastGoodFilename
-    static let WorkingUrl = URL.init(fileURLWithPath: WorkingPath)
-    static let LastGoodUrl = URL.init(fileURLWithPath: LastGoodPath)
+    public static let WorkingPath = ResourcePath + "/" + WorkingDBFilename
+    public static let LastGoodPath = ResourcePath + "/" + LastGoodFilename
+    public static let WorkingUrl = URL.init(fileURLWithPath: WorkingPath)
+    public static let LastGoodUrl = URL.init(fileURLWithPath: LastGoodPath)
 
-    var db : Connection?
-    init() {
+    public var db : Connection?
+    public init() {
         do {
             db = try Connection(DButility.WorkingPath)
         } catch {
             db = nil
         }
     }
-    init?(dbFile: String) {
+    public init?(dbFile: String) {
         do {
             db = try Connection(dbFile)
         } catch {
@@ -113,9 +113,9 @@ class DButility {
         }
     }
     
-    var dbTemp : Connection?
-    var tempFileName : String?
-    func createTemporaryConnection() throws  {
+    public var dbTemp : Connection?
+    public var tempFileName : String?
+    public func createTemporaryConnection() throws  {
         tempFileName = DButility.ResourcePath + "/" + String.init(Date().timeIntervalSince1970)
         do {
             dbTemp = try Connection(tempFileName!)
@@ -124,7 +124,7 @@ class DButility {
         }
     }
     
-    func moveTemporaryDBtoMain() throws {
+    public func moveTemporaryDBtoMain() throws {
         if dbTemp != nil, let file = tempFileName {
             let semaphore = DispatchSemaphore(value: 1)
             semaphore.wait()
@@ -153,7 +153,7 @@ class DButility {
         }
     }
     
-    func copyInOpenFile(url: URL) throws {
+    public func copyInOpenFile(url: URL) throws {
         let semaphore = DispatchSemaphore(value: 1)
         semaphore.wait()
         db!.interrupt()
@@ -182,7 +182,7 @@ class DButility {
         }
     }
     
-    static func save(lastOpenedUrl: URL?) throws {
+    public static func save(lastOpenedUrl: URL?) throws {
         if let last = lastOpenedUrl {
             do {
                 let workingUrl = URL.init(fileURLWithPath: DButility.WorkingPath)

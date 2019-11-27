@@ -10,16 +10,16 @@ import Foundation
 import SQLite
 
 
-struct DBDepths {
-    var id = 0
-    var stationID = 0
-    var depthID = 0
-    var value = 0.0
-    struct TableDescription {
-        static let id = "id"
-        static let stationID = "stationID"
-        static let depthID = "depthID"
-        static let value = "value"
+public struct DBDepths {
+    public var id = 0
+    public var stationID = 0
+    public var depthID = 0
+    public var value = 0.0
+    public struct TableDescription {
+        public static let id = "id"
+        public static let stationID = "stationID"
+        public static let depthID = "depthID"
+        public static let value = "value"
     }
     
     struct Expressions {
@@ -29,21 +29,21 @@ struct DBDepths {
         static let value = Expression<Double>(TableDescription.value)
     }
     
-    init(){}
-    init(id: Int, stationID: Int, depthID: Int, value: Double) {
+    public init(){}
+    public init(id: Int, stationID: Int, depthID: Int, value: Double) {
         self.id = id
         self.stationID = stationID
         self.depthID = depthID
         self.value = value
     }
-    init(id id64: Int64, stationID stationID64: Int64, depthID depthID64: Int64, value: Double) {
+    public init(id id64: Int64, stationID stationID64: Int64, depthID depthID64: Int64, value: Double) {
         self.id = Int(id64)
         self.stationID = Int(stationID64)
         self.depthID = Int(depthID64)
         self.value = value
     }
     
-    static func createTable(db: Connection) throws {
+    public static func createTable(db: Connection) throws {
          do {
             try db.run(DBTable.Depths.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
@@ -55,7 +55,7 @@ struct DBDepths {
             throw DBError.TableCreateError
         }
     }
-    static func deleteTable(db: Connection) throws {
+    public static func deleteTable(db: Connection) throws {
         do {
             try db.run(DBTable.Depths.table.delete())
         } catch {
@@ -63,7 +63,7 @@ struct DBDepths {
         }
     }
 
-    static func createIndex(dbTable: DBTable, db: Connection) throws {
+    public static func createIndex(dbTable: DBTable, db: Connection) throws {
          do {
             try db.run(dbTable.table.createIndex(Expressions.stationID, ifNotExists: true))
         } catch {
@@ -72,7 +72,7 @@ struct DBDepths {
     }
 
     
-    mutating func insert(db: Connection) throws {
+    public mutating func insert(db: Connection) throws {
         let insertStatement = DBTable.Depths.table.insert(Expressions.stationID <- Int64(stationID),
                                                           Expressions.depthID <- Int64(depthID),
                                                           Expressions.value <- value)
@@ -83,7 +83,7 @@ struct DBDepths {
             throw DBError.InsertError
         }
     }
-    mutating func insert(db: Connection, insertStatement: Statement) throws {
+    public mutating func insert(db: Connection, insertStatement: Statement) throws {
         do {
             let rowID = try insertStatement.run(Int64(stationID), Int64(depthID), value)
             //                id = Int(rowID)
@@ -105,7 +105,7 @@ struct DBDepths {
         }
     }
     
-    mutating func existOrInsert(db: Connection) throws {
+    public mutating func existOrInsert(db: Connection) throws {
         let expression = Expressions.stationID == Int64(stationID) && Expressions.depthID == Int64(depthID)
         let query =  DBTable.Depths.table.select(distinct: Expressions.id).filter(expression)
         do {
@@ -127,7 +127,7 @@ struct DBDepths {
             throw DBError.SearchError
         }
     }
-    mutating func existOrInsert(db: Connection, insertStatement: Statement) throws {
+    public mutating func existOrInsert(db: Connection, insertStatement: Statement) throws {
         let expression = Expressions.stationID == Int64(stationID) && Expressions.depthID == Int64(depthID)
         let query =  DBTable.Depths.table.select(distinct: Expressions.id).filter(expression)
         do {
@@ -150,7 +150,7 @@ struct DBDepths {
         }
     }
     
-    static func update(id: Int, value: Double, db: Connection) throws -> Int {
+    public static func update(id: Int, value: Double, db: Connection) throws -> Int {
         let query =  DBTable.Depths.table.filter(Expressions.id == Int64(id))
         do {
             let result = try db.run(query.update(Expressions.value <- value))
@@ -160,7 +160,7 @@ struct DBDepths {
         }
     }
 
-    static func find(id: Int, db: Connection) throws -> DBDepths? {
+    public static func find(id: Int, db: Connection) throws -> DBDepths? {
         let query =  DBTable.Depths.table.filter(Expressions.id == Int64(id))
         do {
             let items = try db.prepare(query)
@@ -172,7 +172,7 @@ struct DBDepths {
         }
         return nil
     }
-    static func find(stationID: Int, db: Connection) throws -> [DBDepths] {
+    public static func find(stationID: Int, db: Connection) throws -> [DBDepths] {
          let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID))
         var retArray = [DBDepths]()
         do {
@@ -186,7 +186,7 @@ struct DBDepths {
         
         return retArray
     }
-    static func find(stationID: Int, depthID: Int, db: Connection) throws -> [DBDepths] {
+    public static func find(stationID: Int, depthID: Int, db: Connection) throws -> [DBDepths] {
         let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID) && Expressions.depthID == Int64(depthID))
         var retArray = [DBDepths]()
         do {
@@ -202,7 +202,7 @@ struct DBDepths {
     }
 
 
-    static func findAll(db: Connection) throws -> [DBDepths] {
+    public static func findAll(db: Connection) throws -> [DBDepths] {
          var retArray = [DBDepths]()
         do {
             let items = try db.prepare( DBTable.Depths.table)
@@ -216,7 +216,7 @@ struct DBDepths {
         return retArray
     }
 
-    static func numberOfEntries(stationID: Int, db: Connection) throws -> Int {
+    public static func numberOfEntries(stationID: Int, db: Connection) throws -> Int {
         let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID)).count
         do {
             let count = try db.scalar(query)
@@ -227,7 +227,7 @@ struct DBDepths {
     }
 
 
-    static func numberOfEntries(db: Connection) throws -> Int {
+    public static func numberOfEntries(db: Connection) throws -> Int {
         do {
             let count = try db.scalar( DBTable.Depths.table.count)
             return count
