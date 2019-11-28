@@ -10,7 +10,7 @@ let package = Package(
             name: "DataPortalDB",
             targets: ["DataPortalDB"])
     ],
-    dependencies: [.package(url: "https://github.com/BoGustafssonBNI/SQLite.git", Package.Dependency.Requirement.branch("master"))],
+    dependencies: [.package(url: "https://github.com/stephencelis/SQLite.swift.git", Package.Dependency.Requirement.branch("master"))],
     targets: [
         .target(
             name: "DataPortalDB",
