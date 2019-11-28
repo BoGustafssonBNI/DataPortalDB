@@ -153,6 +153,19 @@ public struct DBProfile {
         }
         return retArray
     }
+    public static func find(stationID: Int, minDate: Date, maxDate: Date, db: Connection) throws -> [DBProfile] {
+        let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID) && Expressions.date >= minDate && Expressions.date <= maxDate).order(Expressions.date.asc)
+        var retArray = [DBProfile]()
+        do {
+            let items = try db.prepare(query)
+            for item in  items {
+                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date]))
+            }
+        } catch {
+            throw DBError.SearchError
+        }
+        return retArray
+    }
 
     public static func findAll(db: Connection) throws -> [DBProfile] {
          var retArray = [DBProfile]()
