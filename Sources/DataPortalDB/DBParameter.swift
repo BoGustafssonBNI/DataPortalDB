@@ -15,25 +15,30 @@ import SQLite
 public struct DBParameter {
     public var id = 0
     public var name = ""
+    public var nonNegative = false
     public struct TableDescription {
         public static let id = "id"
         public static let name = "name"
+        public static let nonNegative = "nonNegative"
     }
     
     struct Expressions {
         static let id = Expression<Int64>(TableDescription.id)
         static let name = Expression<String>(TableDescription.name)
+        static let nonNegative = Expression<Bool>(TableDescription.nonNegative)
      }
     
     
     public init(){}
-    public init(id: Int, name: String) {
+    public init(id: Int, name: String, nonNegative: Bool) {
         self.id = id
         self.name = name
+        self.nonNegative = nonNegative
     }
-    public init(id id64: Int64, name: String) {
+    public init(id id64: Int64, name: String, nonNegative: Bool) {
         self.id = Int(id64)
         self.name = name
+        self.nonNegative = nonNegative
     }
     
     public static func createTable(db: Connection) throws {
@@ -41,6 +46,7 @@ public struct DBParameter {
             try db.run(DBTable.Parameter.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
                 t.column(Expressions.name)
+                t.column(Expressions.nonNegative)
             })
         } catch {
             throw DBError.TableCreateError
@@ -56,7 +62,7 @@ public struct DBParameter {
 
     
     public mutating func insert(db: Connection) throws {
-         let insertStatement = DBTable.Parameter.table.insert(Expressions.name <- name)
+        let insertStatement = DBTable.Parameter.table.insert(Expressions.name <- name, Expressions.nonNegative <- nonNegative)
         do {
             let rowID = try db.run(insertStatement)
             id = Int(rowID)
@@ -105,7 +111,7 @@ public struct DBParameter {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBParameter(id: item[Expressions.id], name: item[Expressions.name])
+                return DBParameter(id: item[Expressions.id], name: item[Expressions.name], nonNegative: item[Expressions.nonNegative])
             }
         } catch {
             throw DBError.SearchError
@@ -118,7 +124,7 @@ public struct DBParameter {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBParameter(id: item[Expressions.id], name: item[Expressions.name])
+                return DBParameter(id: item[Expressions.id], name: item[Expressions.name], nonNegative: item[Expressions.nonNegative])
             }
         } catch {
             throw DBError.SearchError
@@ -131,7 +137,7 @@ public struct DBParameter {
         do {
             let items = try db.prepare(DBTable.Parameter.table)
             for item in items {
-                retArray.append(DBParameter(id: item[Expressions.id], name: item[Expressions.name]))
+                retArray.append(DBParameter(id: item[Expressions.id], name: item[Expressions.name], nonNegative: item[Expressions.nonNegative]))
             }
         } catch {
             throw DBError.SearchError
