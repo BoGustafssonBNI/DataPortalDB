@@ -10,7 +10,13 @@ import Foundation
 import SQLite
 
 
-public struct DBDepths {
+public struct DBDepths : Comparable, Equatable {
+    public static func < (lhs: DBDepths, rhs: DBDepths) -> Bool {
+        return lhs.value < rhs.value
+    }
+    public static func == (lhs: DBDepths, rhs: DBDepths) -> Bool {
+        return lhs.value == rhs.value
+    }
     public var id = 0
     public var stationID = 0
     public var depthID = 0

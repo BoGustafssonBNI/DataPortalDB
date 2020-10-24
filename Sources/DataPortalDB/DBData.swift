@@ -10,7 +10,14 @@ import Foundation
 import SQLite
 
 
-public struct DBData {
+public struct DBData: Comparable, Equatable {
+    public static func < (lhs: DBData, rhs: DBData) -> Bool {
+        return lhs.value < rhs.value
+    }
+    public static func == (lhs: DBData, rhs: DBData) -> Bool {
+        return lhs.value == rhs.value
+    }
+    
     public var id = 0
     public var profileID = 0
     public var depthID = 0
