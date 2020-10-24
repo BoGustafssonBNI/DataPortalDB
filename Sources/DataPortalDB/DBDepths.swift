@@ -91,7 +91,7 @@ public struct DBDepths : Comparable, Equatable {
     }
     public mutating func insert(db: Connection, insertStatement: Statement) throws {
         do {
-            let rowID = try insertStatement.run(Int64(stationID), Int64(depthID), value)
+            _ = try insertStatement.run(Int64(stationID), Int64(depthID), value)
             //                id = Int(rowID)
         } catch {
             throw DBError.InsertError
