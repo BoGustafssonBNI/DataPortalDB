@@ -15,30 +15,30 @@ import SQLite
 public struct DBParameter {
     public var id = 0
     public var name = ""
-    public var nonNegative = false
+    public var canBeNegative = false
     public struct TableDescription {
         public static let id = "id"
         public static let name = "name"
-        public static let nonNegative = "nonNegative"
+        public static let canBeNegative = "canBeNegative"
     }
     
     struct Expressions {
         static let id = Expression<Int64>(TableDescription.id)
         static let name = Expression<String>(TableDescription.name)
-        static let nonNegative = Expression<Bool>(TableDescription.nonNegative)
+        static let canBeNegative = Expression<Bool>(TableDescription.canBeNegative)
      }
     
     
     public init(){}
-    public init(id: Int, name: String, nonNegative: Bool) {
+    public init(id: Int, name: String, canBeNegative: Bool) {
         self.id = id
         self.name = name
-        self.nonNegative = nonNegative
+        self.canBeNegative = canBeNegative
     }
-    public init(id id64: Int64, name: String, nonNegative: Bool) {
+    public init(id id64: Int64, name: String, canBeNegative: Bool) {
         self.id = Int(id64)
         self.name = name
-        self.nonNegative = nonNegative
+        self.canBeNegative = canBeNegative
     }
     
     public static func createTable(db: Connection) throws {
@@ -46,7 +46,7 @@ public struct DBParameter {
             try db.run(DBTable.Parameter.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
                 t.column(Expressions.name)
-                t.column(Expressions.nonNegative)
+                t.column(Expressions.canBeNegative)
             })
         } catch {
             throw DBError.TableCreateError
@@ -62,7 +62,7 @@ public struct DBParameter {
 
     
     public mutating func insert(db: Connection) throws {
-        let insertStatement = DBTable.Parameter.table.insert(Expressions.name <- name, Expressions.nonNegative <- nonNegative)
+        let insertStatement = DBTable.Parameter.table.insert(Expressions.name <- name, Expressions.canBeNegative <- canBeNegative)
         do {
             let rowID = try db.run(insertStatement)
             id = Int(rowID)
@@ -111,7 +111,7 @@ public struct DBParameter {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBParameter(id: item[Expressions.id], name: item[Expressions.name], nonNegative: item[Expressions.nonNegative])
+                return DBParameter(id: item[Expressions.id], name: item[Expressions.name], canBeNegative: item[Expressions.canBeNegative])
             }
         } catch {
             throw DBError.SearchError
@@ -124,7 +124,7 @@ public struct DBParameter {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBParameter(id: item[Expressions.id], name: item[Expressions.name], nonNegative: item[Expressions.nonNegative])
+                return DBParameter(id: item[Expressions.id], name: item[Expressions.name], canBeNegative: item[Expressions.canBeNegative])
             }
         } catch {
             throw DBError.SearchError
@@ -137,7 +137,7 @@ public struct DBParameter {
         do {
             let items = try db.prepare(DBTable.Parameter.table)
             for item in items {
-                retArray.append(DBParameter(id: item[Expressions.id], name: item[Expressions.name], nonNegative: item[Expressions.nonNegative]))
+                retArray.append(DBParameter(id: item[Expressions.id], name: item[Expressions.name], canBeNegative: item[Expressions.canBeNegative]))
             }
         } catch {
             throw DBError.SearchError
