@@ -403,6 +403,15 @@ public struct DBData: Comparable, Equatable {
     }
 
     
+    public static func numberOfEntries(stationID: Int, parameterID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+        let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.parameterID == Int64(parameterID) && Expressions.depthID == Int64(depthID)).count
+         do {
+            let count = try db.scalar(query)
+            return count
+        } catch {
+            throw DBError.SearchError
+        }
+    }
     public static func numberOfEntries(profileID: Int, parameterID: Int, depthID: Int, dbTable: DBTable, db: Connection) throws -> Int {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID) && Expressions.depthID == Int64(depthID)).count
          do {

@@ -12,7 +12,13 @@ import SQLite
 
 
 
-public struct DBProfile {
+public struct DBProfile : Comparable, Equatable {
+    public static func < (lhs: DBProfile, rhs: DBProfile) -> Bool {
+        return lhs.date < rhs.date
+    }
+    public static func == (lhs: DBProfile, rhs: DBProfile) -> Bool {
+        return lhs.date == rhs.date
+    }
     public var id = 0
     public var stationID = 0
     public var serverID = ""
