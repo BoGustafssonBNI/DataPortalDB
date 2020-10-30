@@ -12,7 +12,7 @@ import SQLite
 
 
 
-public struct DBProfile : Comparable, Equatable {
+public struct DBProfile : Comparable, Equatable, Hashable {
     public static func < (lhs: DBProfile, rhs: DBProfile) -> Bool {
         return lhs.date < rhs.date
     }

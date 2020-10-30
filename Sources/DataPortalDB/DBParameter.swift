@@ -12,7 +12,7 @@ import SQLite
 
 
 
-public struct DBParameter {
+public struct DBParameter: Equatable, Hashable {
     public var id = 0
     public var name = ""
     public var canBeNegative = false

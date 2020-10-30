@@ -10,7 +10,7 @@ import Foundation
 import SQLite
 
 
-public struct DBData: Comparable, Equatable {
+public struct DBData: Comparable, Equatable, Hashable {
     public static func < (lhs: DBData, rhs: DBData) -> Bool {
         return lhs.value < rhs.value
     }

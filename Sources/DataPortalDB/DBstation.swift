@@ -12,7 +12,7 @@ import SQLite
 
 
 
-public struct DBstation {
+public struct DBstation: Equatable, Hashable {
     public var id = 0
     public var name = ""
     public var intLat = 0
