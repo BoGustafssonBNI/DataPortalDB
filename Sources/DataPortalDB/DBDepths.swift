@@ -19,33 +19,33 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
     public var id = 0
     public var stationID = 0
-    public var depthID = 0
+    public var level = 0
     public var value = 0.0
     public struct TableDescription {
         public static let id = "id"
         public static let stationID = "stationID"
-        public static let depthID = "depthID"
+        public static let level = "level"
         public static let value = "value"
     }
     
     struct Expressions {
         static let id = Expression<Int64>(TableDescription.id)
         static let stationID = Expression<Int64>(TableDescription.stationID)
-        static let depthID = Expression<Int64>(TableDescription.depthID)
+        static let level = Expression<Int64>(TableDescription.level)
         static let value = Expression<Double>(TableDescription.value)
     }
     
     public init(){}
-    public init(id: Int, stationID: Int, depthID: Int, value: Double) {
+    public init(id: Int, stationID: Int, level: Int, value: Double) {
         self.id = id
         self.stationID = stationID
-        self.depthID = depthID
+        self.level = level
         self.value = value
     }
-    public init(id id64: Int64, stationID stationID64: Int64, depthID depthID64: Int64, value: Double) {
+    public init(id id64: Int64, stationID stationID64: Int64, level level64: Int64, value: Double) {
         self.id = Int(id64)
         self.stationID = Int(stationID64)
-        self.depthID = Int(depthID64)
+        self.level = Int(level64)
         self.value = value
     }
     
@@ -54,7 +54,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
             try db.run(DBTable.Depths.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
                 t.column(Expressions.stationID)
-                t.column(Expressions.depthID)
+                t.column(Expressions.level)
                 t.column(Expressions.value)
             })
         } catch {
@@ -80,7 +80,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     
     public mutating func insert(db: Connection) throws {
         let insertStatement = DBTable.Depths.table.insert(Expressions.stationID <- Int64(stationID),
-                                                          Expressions.depthID <- Int64(depthID),
+                                                          Expressions.level <- Int64(level),
                                                           Expressions.value <- value)
         do {
             let rowID = try db.run(insertStatement)
@@ -91,7 +91,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
     public mutating func insert(db: Connection, insertStatement: Statement) throws {
         do {
-            _ = try insertStatement.run(Int64(stationID), Int64(depthID), value)
+            _ = try insertStatement.run(Int64(stationID), Int64(level), value)
             //                id = Int(rowID)
         } catch {
             throw DBError.InsertError
@@ -112,7 +112,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
     
     public mutating func existOrInsert(db: Connection) throws {
-        let expression = Expressions.stationID == Int64(stationID) && Expressions.depthID == Int64(depthID)
+        let expression = Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level)
         let query =  DBTable.Depths.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
@@ -134,7 +134,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
         }
     }
     public mutating func existOrInsert(db: Connection, insertStatement: Statement) throws {
-        let expression = Expressions.stationID == Int64(stationID) && Expressions.depthID == Int64(depthID)
+        let expression = Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level)
         let query =  DBTable.Depths.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
@@ -171,7 +171,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], depthID: item[Expressions.depthID], value: item[Expressions.value])
+                return DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value])
             }
         } catch {
             throw DBError.SearchError
@@ -184,7 +184,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], depthID: item[Expressions.depthID], value: item[Expressions.value]))
+                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -193,12 +193,12 @@ public struct DBDepths : Comparable, Equatable, Hashable {
         return retArray
     }
     public static func find(stationID: Int, depthID: Int, db: Connection) throws -> [DBDepths] {
-        let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID) && Expressions.depthID == Int64(depthID))
+        let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID) && Expressions.level == Int64(depthID))
         var retArray = [DBDepths]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], depthID: item[Expressions.depthID], value: item[Expressions.value]))
+                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -213,7 +213,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare( DBTable.Depths.table)
             for item in items {
-                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], depthID: item[Expressions.depthID], value: item[Expressions.value]))
+                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
