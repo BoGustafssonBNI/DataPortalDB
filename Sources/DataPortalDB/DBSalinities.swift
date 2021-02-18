@@ -18,33 +18,28 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
     }
     public var id = 0
     public var stationID = 0
-    public var level = 0
     public var value = 0.0
     public struct TableDescription {
         public static let id = "id"
         public static let stationID = "stationID"
-        public static let level = "level"
         public static let value = "value"
     }
     
     struct Expressions {
         static let id = Expression<Int64>(TableDescription.id)
         static let stationID = Expression<Int64>(TableDescription.stationID)
-        static let level = Expression<Int64>(TableDescription.level)
         static let value = Expression<Double>(TableDescription.value)
     }
     
     public init(){}
-    public init(id: Int, stationID: Int, level: Int, value: Double) {
+    public init(id: Int, stationID: Int, value: Double) {
         self.id = id
         self.stationID = stationID
-        self.level = level
         self.value = value
     }
-    public init(id id64: Int64, stationID stationID64: Int64, level level64: Int64, value: Double) {
+    public init(id id64: Int64, stationID stationID64: Int64, value: Double) {
         self.id = Int(id64)
         self.stationID = Int(stationID64)
-        self.level = Int(level64)
         self.value = value
     }
     
@@ -53,7 +48,6 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
             try db.run(DBTable.Salinities.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
                 t.column(Expressions.stationID)
-                t.column(Expressions.level)
                 t.column(Expressions.value)
             })
         } catch {
@@ -79,7 +73,6 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
     
     public mutating func insert(db: Connection) throws {
         let insertStatement = DBTable.Salinities.table.insert(Expressions.stationID <- Int64(stationID),
-                                                          Expressions.level <- Int64(level),
                                                           Expressions.value <- value)
         do {
             let rowID = try db.run(insertStatement)
@@ -90,7 +83,7 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
     }
     public mutating func insert(db: Connection, insertStatement: Statement) throws {
         do {
-            _ = try insertStatement.run(Int64(stationID), Int64(level), value)
+            _ = try insertStatement.run(Int64(stationID), value)
             //                id = Int(rowID)
         } catch {
             throw DBError.InsertError
@@ -111,7 +104,7 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
     }
     
     public mutating func existOrInsert(db: Connection) throws {
-        let expression = Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level)
+        let expression = Expressions.stationID == Int64(stationID)
         let query =  DBTable.Salinities.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
@@ -133,7 +126,7 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
         }
     }
     public mutating func existOrInsert(db: Connection, insertStatement: Statement) throws {
-        let expression = Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level)
+        let expression = Expressions.stationID == Int64(stationID)
         let query =  DBTable.Salinities.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
@@ -170,7 +163,7 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value])
+                return DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], value: item[Expressions.value])
             }
         } catch {
             throw DBError.SearchError
@@ -183,7 +176,7 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
+                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -192,12 +185,12 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
         return retArray
     }
     public static func find(stationID: Int, level: Int, db: Connection) throws -> [DBSalinities] {
-        let query =  DBTable.Salinities.table.filter(Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level))
+        let query =  DBTable.Salinities.table.filter(Expressions.stationID == Int64(stationID))
         var retArray = [DBSalinities]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
+                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -212,7 +205,7 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare( DBTable.Salinities.table)
             for item in items {
-                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
+                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
