@@ -1,20 +1,19 @@
 //
-//  DBDepths.swift
-//  SimpleDataSQL
+//  File.swift
+//  
 //
-//  Created by Bo Gustafsson on 2019-11-23.
-//  Copyright © 2019 Bo Gustafsson. All rights reserved.
+//  Created by Bo Gustafsson on 2021-02-18.
 //
 
 import Foundation
 import SQLite
 
 
-public struct DBDepths : Comparable, Equatable, Hashable {
-    public static func < (lhs: DBDepths, rhs: DBDepths) -> Bool {
+public struct DBSalinities: Comparable, Equatable, Hashable {
+    public static func < (lhs: DBSalinities, rhs: DBSalinities) -> Bool {
         return lhs.value < rhs.value
     }
-    public static func == (lhs: DBDepths, rhs: DBDepths) -> Bool {
+    public static func == (lhs: DBSalinities, rhs: DBSalinities) -> Bool {
         return lhs.value == rhs.value
     }
     public var id = 0
@@ -51,7 +50,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     
     public static func createTable(db: Connection) throws {
          do {
-            try db.run(DBTable.Depths.table.create(ifNotExists: true) {t in
+            try db.run(DBTable.Salinities.table.create(ifNotExists: true) {t in
                 t.column(Expressions.id, primaryKey: true)
                 t.column(Expressions.stationID)
                 t.column(Expressions.level)
@@ -63,7 +62,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
     public static func deleteTable(db: Connection) throws {
         do {
-            try db.run(DBTable.Depths.table.delete())
+            try db.run(DBTable.Salinities.table.delete())
         } catch {
             throw DBError.TableDeleteError
         }
@@ -79,7 +78,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
 
     
     public mutating func insert(db: Connection) throws {
-        let insertStatement = DBTable.Depths.table.insert(Expressions.stationID <- Int64(stationID),
+        let insertStatement = DBTable.Salinities.table.insert(Expressions.stationID <- Int64(stationID),
                                                           Expressions.level <- Int64(level),
                                                           Expressions.value <- value)
         do {
@@ -100,7 +99,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     
 
     public func delete (db: Connection) throws -> Void {
-        let query =  DBTable.Depths.table.filter(Expressions.id == Int64(id))
+        let query =  DBTable.Salinities.table.filter(Expressions.id == Int64(id))
         do {
             let tmp = try db.run(query.delete())
             guard tmp == 1 else {
@@ -113,7 +112,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     
     public mutating func existOrInsert(db: Connection) throws {
         let expression = Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level)
-        let query =  DBTable.Depths.table.select(distinct: Expressions.id).filter(expression)
+        let query =  DBTable.Salinities.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
             for item in items {
@@ -135,7 +134,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
     public mutating func existOrInsert(db: Connection, insertStatement: Statement) throws {
         let expression = Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level)
-        let query =  DBTable.Depths.table.select(distinct: Expressions.id).filter(expression)
+        let query =  DBTable.Salinities.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
             for item in items {
@@ -157,7 +156,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
     
     public static func update(id: Int, value: Double, db: Connection) throws -> Int {
-        let query =  DBTable.Depths.table.filter(Expressions.id == Int64(id))
+        let query =  DBTable.Salinities.table.filter(Expressions.id == Int64(id))
         do {
             let result = try db.run(query.update(Expressions.value <- value))
             return result
@@ -166,25 +165,25 @@ public struct DBDepths : Comparable, Equatable, Hashable {
         }
     }
 
-    public static func find(id: Int, db: Connection) throws -> DBDepths? {
-        let query =  DBTable.Depths.table.filter(Expressions.id == Int64(id))
+    public static func find(id: Int, db: Connection) throws -> DBSalinities? {
+        let query =  DBTable.Salinities.table.filter(Expressions.id == Int64(id))
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value])
+                return DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value])
             }
         } catch {
             throw DBError.SearchError
         }
         return nil
     }
-    public static func find(stationID: Int, db: Connection) throws -> [DBDepths] {
-         let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID))
-        var retArray = [DBDepths]()
+    public static func find(stationID: Int, db: Connection) throws -> [DBSalinities] {
+         let query =  DBTable.Salinities.table.filter(Expressions.stationID == Int64(stationID))
+        var retArray = [DBSalinities]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
+                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -192,13 +191,13 @@ public struct DBDepths : Comparable, Equatable, Hashable {
         
         return retArray
     }
-    public static func find(stationID: Int, level: Int, db: Connection) throws -> [DBDepths] {
-        let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level))
-        var retArray = [DBDepths]()
+    public static func find(stationID: Int, level: Int, db: Connection) throws -> [DBSalinities] {
+        let query =  DBTable.Salinities.table.filter(Expressions.stationID == Int64(stationID) && Expressions.level == Int64(level))
+        var retArray = [DBSalinities]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
+                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -208,12 +207,12 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
 
 
-    public static func findAll(db: Connection) throws -> [DBDepths] {
-         var retArray = [DBDepths]()
+    public static func findAll(db: Connection) throws -> [DBSalinities] {
+         var retArray = [DBSalinities]()
         do {
-            let items = try db.prepare( DBTable.Depths.table)
+            let items = try db.prepare( DBTable.Salinities.table)
             for item in items {
-                retArray.append(DBDepths(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
+                retArray.append(DBSalinities(id: item[Expressions.id], stationID: item[Expressions.stationID], level: item[Expressions.level], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -223,7 +222,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
     }
 
     public static func numberOfEntries(stationID: Int, db: Connection) throws -> Int {
-        let query =  DBTable.Depths.table.filter(Expressions.stationID == Int64(stationID)).count
+        let query =  DBTable.Salinities.table.filter(Expressions.stationID == Int64(stationID)).count
         do {
             let count = try db.scalar(query)
             return count
@@ -235,7 +234,7 @@ public struct DBDepths : Comparable, Equatable, Hashable {
 
     public static func numberOfEntries(db: Connection) throws -> Int {
         do {
-            let count = try db.scalar( DBTable.Depths.table.count)
+            let count = try db.scalar( DBTable.Salinities.table.count)
             return count
         } catch {
             throw DBError.SearchError
