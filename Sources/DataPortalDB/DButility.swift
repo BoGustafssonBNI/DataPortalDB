@@ -14,9 +14,11 @@ import SQLite
 public struct DBTable {
     public static let DataRecords = DBTable(tableName: "dataRecords")
     public static let SDataRecords = DBTable(tableName: "SalinitySortedDataRecords")
+    public static let ODataRecords = DBTable(tableName: "OxygenSortedDataRecords")
     public static let Stations = DBTable(tableName: "stations")
     public static let Depths = DBTable(tableName: "depths")
     public static let Salinities = DBTable(tableName: "salinities")
+    public static let Oxygen = DBTable(tableName: "oxygen")
     public static let Profiles = DBTable(tableName: "profiles")
     public static let Parameter = DBTable(tableName: "parameters")
     public var tableName = String()

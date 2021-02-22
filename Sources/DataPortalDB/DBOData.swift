@@ -1,26 +1,26 @@
 //
-//  DBSData.swift
+//  DBOData.swift
 //  
 //
-//  Created by Bo Gustafsson on 2021-02-18.
+//  Created by Bo Gustafsson on 2021-02-22.
 //
 
 import Foundation
 import SQLite
 
 
-public struct DBSData: Comparable, Equatable, Hashable {
-    public static func < (lhs: DBSData, rhs: DBSData) -> Bool {
+public struct DBOData: Comparable, Equatable, Hashable {
+    public static func < (lhs: DBOData, rhs: DBOData) -> Bool {
         return lhs.value < rhs.value
     }
-    public static func == (lhs: DBSData, rhs: DBSData) -> Bool {
+    public static func == (lhs: DBOData, rhs: DBOData) -> Bool {
         return lhs.value == rhs.value
     }
     
     public var id = 0
     public var stationID = 0
     public var profileID = 0
-    public var salinityID = 0
+    public var oxygenID = 0
     public var parameterID = 0
     public var depth = 0.0
     public var value = 0.0
@@ -29,7 +29,7 @@ public struct DBSData: Comparable, Equatable, Hashable {
         public static let id = "id"
         public static let stationID = "stationID"
         public static let profileID = "profileID"
-        public static let salinityID = "salinityID"
+        public static let oxygenID = "oxygenID"
         public static let parameterID = "parameterID"
         public static let depth = "depth"
         public static let value = "value"
@@ -39,28 +39,28 @@ public struct DBSData: Comparable, Equatable, Hashable {
         static let id = Expression<Int64>(TableDescription.id)
         static let stationID = Expression<Int64>(TableDescription.stationID)
         static let profileID = Expression<Int64>(TableDescription.profileID)
-        static let salinityID = Expression<Int64>(TableDescription.salinityID)
+        static let oxygenID = Expression<Int64>(TableDescription.oxygenID)
         static let parameterID = Expression<Int64>(TableDescription.parameterID)
         static let depth = Expression<Double>(TableDescription.depth)
         static let value = Expression<Double>(TableDescription.value)
     }
     
     public init(){}
-    public init(id: Int, stationID: Int, profileID: Int, salinityID: Int, parameterID: Int, depth: Double, value: Double) {
+    public init(id: Int, stationID: Int, profileID: Int, oxygenID: Int, parameterID: Int, depth: Double, value: Double) {
         self.id = id
         self.stationID = stationID
         self.profileID = profileID
-        self.salinityID = salinityID
+        self.oxygenID = oxygenID
         self.parameterID = parameterID
         self.depth = depth
         self.value = value
     }
-    init(id id64: Int64, stationID stationID64: Int64, profileID profileID64: Int64, salinityID salinityID64: Int64, parameterID parameterID64: Int64, depth: Double, value: Double) {
+    init(id id64: Int64, stationID stationID64: Int64, profileID profileID64: Int64, oxygenID oxygenID64: Int64, parameterID parameterID64: Int64, depth: Double, value: Double) {
         self.id = Int(id64)
         self.stationID = Int(stationID64)
         self.parameterID = Int(parameterID64)
         self.profileID = Int(profileID64)
-        self.salinityID = Int(salinityID64)
+        self.oxygenID = Int(oxygenID64)
         self.depth = depth
         self.value = value
     }
@@ -71,7 +71,7 @@ public struct DBSData: Comparable, Equatable, Hashable {
                 t.column(Expressions.id, primaryKey: true)
                 t.column(Expressions.stationID)
                 t.column(Expressions.profileID)
-                t.column(Expressions.salinityID)
+                t.column(Expressions.oxygenID)
                 t.column(Expressions.parameterID)
                 t.column(Expressions.depth)
                 t.column(Expressions.value)
@@ -100,7 +100,7 @@ public struct DBSData: Comparable, Equatable, Hashable {
     public mutating func insert(dbTable: DBTable, db: Connection) throws {
         let insertStatement = dbTable.table.insert(Expressions.stationID <- Int64(stationID),
                                                    Expressions.profileID <- Int64(profileID),
-                                                   Expressions.salinityID <- Int64(salinityID),
+                                                   Expressions.oxygenID <- Int64(oxygenID),
                                                    Expressions.parameterID <- Int64(parameterID),
                                                    Expressions.depth <- depth,
                                                    Expressions.value <- value)
@@ -113,7 +113,7 @@ public struct DBSData: Comparable, Equatable, Hashable {
     }
     public mutating func insert(db: Connection, insertStatement: Statement) throws {
         do {
-            _ = try insertStatement.run(Int64(stationID), Int64(profileID), Int64(salinityID), Int64(parameterID), depth, value)
+            _ = try insertStatement.run(Int64(stationID), Int64(profileID), Int64(oxygenID), Int64(parameterID), depth, value)
             //                id = Int(rowID)
         } catch {
             throw DBError.InsertError
@@ -134,7 +134,7 @@ public struct DBSData: Comparable, Equatable, Hashable {
     }
     
     public mutating func existOrInsert(dbTable: DBTable, db: Connection) throws {
-        let expression = Expressions.profileID == Int64(profileID) && Expressions.salinityID == Int64(salinityID) && Expressions.parameterID == Int64(parameterID)
+        let expression = Expressions.profileID == Int64(profileID) && Expressions.oxygenID == Int64(oxygenID) && Expressions.parameterID == Int64(parameterID)
         let query = dbTable.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
@@ -155,7 +155,7 @@ public struct DBSData: Comparable, Equatable, Hashable {
         }
     }
     public mutating func existOrInsert(dbTable: DBTable, db: Connection, insertStatement: Statement) throws {
-        let expression = Expressions.profileID == Int64(profileID) && Expressions.salinityID == Int64(salinityID) && Expressions.parameterID == Int64(parameterID)
+        let expression = Expressions.profileID == Int64(profileID) && Expressions.oxygenID == Int64(oxygenID) && Expressions.parameterID == Int64(parameterID)
         let query = dbTable.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
@@ -195,25 +195,25 @@ public struct DBSData: Comparable, Equatable, Hashable {
         }
     }
 
-    public static func find(id: Int, dbTable: DBTable, db: Connection) throws -> DBSData? {
+    public static func find(id: Int, dbTable: DBTable, db: Connection) throws -> DBOData? {
         let query = dbTable.table.filter(Expressions.id == Int64(id))
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value])
+                return DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value])
             }
         } catch {
             throw DBError.SearchError
         }
         return nil
     }
-    public static func find(profileID: Int, dbTable: DBTable, db: Connection) throws -> [DBSData] {
+    public static func find(profileID: Int, dbTable: DBTable, db: Connection) throws -> [DBOData] {
         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID))
-        var retArray = [DBSData]()
+        var retArray = [DBOData]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -221,28 +221,13 @@ public struct DBSData: Comparable, Equatable, Hashable {
         
         return retArray
     }
-    public static func find(profileID: Int, salinityID: Int, dbTable: DBTable, db: Connection) throws -> [DBSData] {
-        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.salinityID == Int64(salinityID))
-        var retArray = [DBSData]()
+    public static func find(profileID: Int, oxygenID: Int, dbTable: DBTable, db: Connection) throws -> [DBOData] {
+        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.oxygenID == Int64(oxygenID))
+        var retArray = [DBOData]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
-            }
-        } catch {
-            throw DBError.SearchError
-        }
-        
-        return retArray
-    }
-
-    public static func find(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [DBSData] {
-        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID)).order(Expressions.salinityID.asc)
-        var retArray = [DBSData]()
-        do {
-            let items = try db.prepare(query)
-            for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -251,13 +236,28 @@ public struct DBSData: Comparable, Equatable, Hashable {
         return retArray
     }
 
-    public static func find(profileID: Int, parameterID: Int, salinityID: Int, dbTable: DBTable, db: Connection) throws -> [DBSData] {
-         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID) && Expressions.salinityID == Int64(salinityID))
-        var retArray = [DBSData]()
+    public static func find(profileID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [DBOData] {
+        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID)).order(Expressions.oxygenID.asc)
+        var retArray = [DBOData]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+            }
+        } catch {
+            throw DBError.SearchError
+        }
+        
+        return retArray
+    }
+
+    public static func find(profileID: Int, parameterID: Int, oxygenID: Int, dbTable: DBTable, db: Connection) throws -> [DBOData] {
+         let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID) && Expressions.oxygenID == Int64(oxygenID))
+        var retArray = [DBOData]()
+        do {
+            let items = try db.prepare(query)
+            for item in items {
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -266,13 +266,13 @@ public struct DBSData: Comparable, Equatable, Hashable {
         return retArray
     }
 // Station based search
-    public static func find(stationID: Int, salinityID: Int, dbTable: DBTable, db: Connection) throws -> [DBSData] {
-        let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.salinityID == Int64(salinityID))
-        var retArray = [DBSData]()
+    public static func find(stationID: Int, oxygenID: Int, dbTable: DBTable, db: Connection) throws -> [DBOData] {
+        let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.oxygenID == Int64(oxygenID))
+        var retArray = [DBOData]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -281,13 +281,13 @@ public struct DBSData: Comparable, Equatable, Hashable {
         return retArray
     }
 
-    public static func find(stationID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [DBSData] {
-        let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.parameterID == Int64(parameterID)).order(Expressions.salinityID.asc)
-        var retArray = [DBSData]()
+    public static func find(stationID: Int, parameterID: Int, dbTable: DBTable, db: Connection) throws -> [DBOData] {
+        let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.parameterID == Int64(parameterID)).order(Expressions.oxygenID.asc)
+        var retArray = [DBOData]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -296,13 +296,13 @@ public struct DBSData: Comparable, Equatable, Hashable {
         return retArray
     }
 
-    public static func find(stationID: Int, parameterID: Int, salinityID: Int, dbTable: DBTable, db: Connection) throws -> [DBSData] {
-         let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.parameterID == Int64(parameterID) && Expressions.salinityID == Int64(salinityID))
-        var retArray = [DBSData]()
+    public static func find(stationID: Int, parameterID: Int, oxygenID: Int, dbTable: DBTable, db: Connection) throws -> [DBOData] {
+         let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.parameterID == Int64(parameterID) && Expressions.oxygenID == Int64(oxygenID))
+        var retArray = [DBOData]()
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -311,12 +311,12 @@ public struct DBSData: Comparable, Equatable, Hashable {
         return retArray
     }
 // Find all
-    public static func findAll(dbTable: DBTable, db: Connection) throws -> [DBSData] {
-         var retArray = [DBSData]()
+    public static func findAll(dbTable: DBTable, db: Connection) throws -> [DBOData] {
+         var retArray = [DBOData]()
         do {
             let items = try db.prepare(dbTable.table)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
         } catch {
             throw DBError.SearchError
@@ -357,13 +357,13 @@ public struct DBSData: Comparable, Equatable, Hashable {
         return nil
     }
     
-    public static func find(profileIDRange: Range<Int>, parameterID: Int, at value: Double, with tolerance: Double, from dbTable: DBTable, and db: Connection) throws -> [DBSData] {
-        var retArray = [DBSData]()
+    public static func find(profileIDRange: Range<Int>, parameterID: Int, at value: Double, with tolerance: Double, from dbTable: DBTable, and db: Connection) throws -> [DBOData] {
+        var retArray = [DBOData]()
         let query = dbTable.table.filter(Expressions.profileID >= Int64(profileIDRange.lowerBound) && Expressions.profileID <= Int64(profileIDRange.upperBound) && Expressions.parameterID == Int64(parameterID) && Expressions.value >= value - tolerance && Expressions.value <= value + tolerance)
         do {
             let items = try db.prepare(query)
             for item in items {
-                retArray.append(DBSData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], salinityID: item[Expressions.salinityID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
+                retArray.append(DBOData(id: item[Expressions.id], stationID: item[Expressions.stationID], profileID: item[Expressions.profileID], oxygenID: item[Expressions.oxygenID], parameterID: item[Expressions.parameterID], depth: item[Expressions.depth], value: item[Expressions.value]))
             }
             return retArray
             
@@ -396,8 +396,8 @@ public struct DBSData: Comparable, Equatable, Hashable {
         }
     }
 
-    public static func numberOfEntries(profileID: Int, salinityID: Int, dbTable: DBTable, db: Connection) throws -> Int {
-        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.salinityID == Int64(salinityID)).count
+    public static func numberOfEntries(profileID: Int, oxygenID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.oxygenID == Int64(oxygenID)).count
         do {
             let count = try db.scalar(query)
             return count
@@ -418,8 +418,8 @@ public struct DBSData: Comparable, Equatable, Hashable {
     }
 
     
-    public static func numberOfEntries(stationID: Int, parameterID: Int, salinityID: Int, dbTable: DBTable, db: Connection) throws -> Int {
-        let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.parameterID == Int64(parameterID) && Expressions.salinityID == Int64(salinityID)).count
+    public static func numberOfEntries(stationID: Int, parameterID: Int, oxygenID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+        let query = dbTable.table.filter(Expressions.stationID == Int64(stationID) && Expressions.parameterID == Int64(parameterID) && Expressions.oxygenID == Int64(oxygenID)).count
          do {
             let count = try db.scalar(query)
             return count
@@ -427,8 +427,8 @@ public struct DBSData: Comparable, Equatable, Hashable {
             throw DBError.SearchError
         }
     }
-    public static func numberOfEntries(profileID: Int, parameterID: Int, salinityID: Int, dbTable: DBTable, db: Connection) throws -> Int {
-        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID) && Expressions.salinityID == Int64(salinityID)).count
+    public static func numberOfEntries(profileID: Int, parameterID: Int, oxygenID: Int, dbTable: DBTable, db: Connection) throws -> Int {
+        let query = dbTable.table.filter(Expressions.profileID == Int64(profileID) && Expressions.parameterID == Int64(parameterID) && Expressions.oxygenID == Int64(oxygenID)).count
          do {
             let count = try db.scalar(query)
             return count
