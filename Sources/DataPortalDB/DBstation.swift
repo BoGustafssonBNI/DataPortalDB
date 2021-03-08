@@ -24,11 +24,21 @@ public struct DBstation: Equatable, Hashable {
         let intMin = pos - intDeg * 100
         return Double(intDeg) + Double(intMin)/60.0
     }
+    private func decPos2Int(pos: Double) -> Int {
+        let deg = Int(pos)
+        let min = Int((pos - Double(deg))*60.0/100.0)
+        return 100 * deg + min
+    }
+    private func distance(between pos1: Int, and pos2: Int) -> Int {
+        let diff = abs(intPos2Dec(pos: pos1) - intPos2Dec(pos: pos2)) * 60.0
+        return Int(diff)
+    }
     public var lat : Double {
         get {
             return intPos2Dec(pos: intLat)
         }
     }
+    
     public var lon : Double {
         get {
             return intPos2Dec(pos: intLon)
@@ -106,6 +116,14 @@ public struct DBstation: Equatable, Hashable {
         self.intLatDist = Int(intLatDist64)
         self.intLonDist = Int(intLonDist64)
     }
+    public init(id: Int, name: String, intMinLat: Int, intMinLon: Int, intMaxLat: Int, intMaxLon: Int) {
+        self.id = id
+        self.name = name
+        self.intLat = decPos2Int(pos: 0.5 * (intPos2Dec(pos: intMinLat) +  intPos2Dec(pos: intMaxLat)))
+        self.intLon = decPos2Int(pos: 0.5 * (intPos2Dec(pos: intMinLon) +  intPos2Dec(pos: intMaxLon)))
+        self.intLatDist = distance(between: intMaxLat, and: intMinLat)/2
+        self.intLonDist = distance(between: intMaxLon, and: intMinLon)/2
+     }
 
     public static func createTable(db: Connection) throws {
          do {
