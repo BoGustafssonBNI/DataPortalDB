@@ -17,7 +17,8 @@ public struct DBstation: Equatable, Hashable {
     public var name = ""
     public var intLat = 0
     public var intLon = 0
-    public var intDist = 0
+    public var intLatDist = 0
+    public var intLonDist = 0
     private func intPos2Dec(pos: Int) -> Double {
         let intDeg = pos/100
         let intMin = pos - intDeg * 100
@@ -35,22 +36,22 @@ public struct DBstation: Equatable, Hashable {
     }
     public var latMin : Double {
         get {
-            return lat - Double(intDist)/60.0
+            return lat - Double(intLatDist)/60.0
         }
     }
     public var latMax : Double {
         get {
-            return lat + Double(intDist)/60.0
+            return lat + Double(intLatDist)/60.0
         }
     }
     public var lonMin : Double {
         get {
-            return lon - Double(intDist)/60.0
+            return lon - Double(intLonDist)/60.0
         }
     }
     public var lonMax : Double {
         get {
-            return lon + Double(intDist)/60.0
+            return lon + Double(intLonDist)/60.0
         }
     }
     public struct TableDescription {
@@ -58,7 +59,8 @@ public struct DBstation: Equatable, Hashable {
         public static let name = "name"
         public static let intLat = "latitude"
         public static let intLon = "longitude"
-        public static let intDist = "distance"
+        public static let intLatDist = "distance lat"
+        public static let intLonDist = "distance lon"
     }
     
     struct Expressions {
@@ -66,7 +68,8 @@ public struct DBstation: Equatable, Hashable {
         static let name = Expression<String>(TableDescription.name)
         static let intLat = Expression<Int64>(TableDescription.intLat)
         static let intLon = Expression<Int64>(TableDescription.intLon)
-        static let intDist = Expression<Int64>(TableDescription.intDist)
+        static let intLatDist = Expression<Int64>(TableDescription.intLatDist)
+        static let intLonDist = Expression<Int64>(TableDescription.intLonDist)
     }
     
     
@@ -76,16 +79,34 @@ public struct DBstation: Equatable, Hashable {
         self.name = name
         self.intLat = intLat
         self.intLon = intLon
-        self.intDist = intDist
+        self.intLatDist = intDist
+        self.intLonDist = intDist
      }
     public init(id id64: Int64, name: String, intLat intLat64: Int64, intLon intLon64: Int64, intDist intDist64: Int64) {
         self.id = Int(id64)
         self.name = name
         self.intLat = Int(intLat64)
         self.intLon = Int(intLon64)
-        self.intDist = Int(intDist64)
+        self.intLatDist = Int(intDist64)
+        self.intLonDist = Int(intDist64)
     }
-    
+    public init(id: Int, name: String, intLat: Int, intLon: Int, intLatDist: Int, intLonDist: Int) {
+        self.id = id
+        self.name = name
+        self.intLat = intLat
+        self.intLon = intLon
+        self.intLatDist = intLatDist
+        self.intLonDist = intLonDist
+     }
+    public init(id id64: Int64, name: String, intLat intLat64: Int64, intLon intLon64: Int64, intLatDist intLatDist64: Int64, intLonDist intLonDist64: Int64) {
+        self.id = Int(id64)
+        self.name = name
+        self.intLat = Int(intLat64)
+        self.intLon = Int(intLon64)
+        self.intLatDist = Int(intLatDist64)
+        self.intLonDist = Int(intLonDist64)
+    }
+
     public static func createTable(db: Connection) throws {
          do {
             try db.run(DBTable.Stations.table.create(ifNotExists: true) {t in
@@ -93,7 +114,8 @@ public struct DBstation: Equatable, Hashable {
                 t.column(Expressions.name)
                 t.column(Expressions.intLat)
                 t.column(Expressions.intLon)
-                t.column(Expressions.intDist)
+                t.column(Expressions.intLatDist)
+                t.column(Expressions.intLonDist)
             })
         } catch {
             throw DBError.TableCreateError
@@ -113,7 +135,8 @@ public struct DBstation: Equatable, Hashable {
          let insertStatement = DBTable.Stations.table.insert(Expressions.name <- name,
                                                            Expressions.intLat <- Int64(intLat),
                                                            Expressions.intLon <- Int64(intLon),
-                                                           Expressions.intDist <- Int64(intDist))
+                                                           Expressions.intLatDist <- Int64(intLatDist),
+                                                           Expressions.intLonDist <- Int64(intLonDist))
         do {
             let rowID = try db.run(insertStatement)
             id = Int(rowID)
@@ -135,7 +158,7 @@ public struct DBstation: Equatable, Hashable {
     }
     
     public mutating func existOrInsert(db: Connection) throws {
-        let expression = Expressions.name == name && Expressions.intLat == Int64(intLat) && Expressions.intLon == Int64(intLon) && Expressions.intDist == Int64(intDist)
+        let expression = Expressions.name == name && Expressions.intLat == Int64(intLat) && Expressions.intLon == Int64(intLon) && Expressions.intLatDist == Int64(intLatDist) && Expressions.intLonDist == Int64(intLonDist)
         let query = DBTable.Stations.table.select(distinct: Expressions.id).filter(expression)
         do {
             let items = try db.prepare(query)
@@ -162,7 +185,7 @@ public struct DBstation: Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBstation(id: item[Expressions.id], name: item[Expressions.name], intLat: item[Expressions.intLat], intLon: item[Expressions.intLon], intDist: item[Expressions.intDist])
+                return DBstation(id: item[Expressions.id], name: item[Expressions.name], intLat: item[Expressions.intLat], intLon: item[Expressions.intLon], intLatDist: item[Expressions.intLatDist], intLonDist: item[Expressions.intLonDist])
             }
         } catch {
             throw DBError.SearchError
@@ -173,7 +196,8 @@ public struct DBstation: Equatable, Hashable {
     public enum DataTypes {
         case intLat
         case intLon
-        case intDist
+        case intLatDist
+        case intLonDist
     }
     
     public static func update(id: Int, for variable: DataTypes, value: Int, db: Connection) throws -> Int {
@@ -186,8 +210,10 @@ public struct DBstation: Equatable, Hashable {
                 valueExpression = Expressions.intLat
             case .intLon:
                 valueExpression = Expressions.intLon
-            case .intDist:
-                valueExpression = Expressions.intDist
+            case .intLatDist:
+                valueExpression = Expressions.intLatDist
+            case .intLonDist:
+                valueExpression = Expressions.intLonDist
             }
             let result = try db.run(query.update(valueExpression <- Int64(value)))
             return result
@@ -220,7 +246,7 @@ public struct DBstation: Equatable, Hashable {
         do {
             let items = try db.prepare(DBTable.Stations.table)
             for item in items {
-                retArray.append(DBstation(id: item[Expressions.id], name: item[Expressions.name], intLat: item[Expressions.intLat], intLon: item[Expressions.intLon], intDist: item[Expressions.intDist]))
+                retArray.append(DBstation(id: item[Expressions.id], name: item[Expressions.name], intLat: item[Expressions.intLat], intLon: item[Expressions.intLon], intLatDist: item[Expressions.intLatDist], intLonDist: item[Expressions.intLonDist]))
             }
         } catch {
             throw DBError.SearchError
