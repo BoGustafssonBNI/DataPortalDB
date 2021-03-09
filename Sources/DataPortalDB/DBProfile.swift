@@ -24,12 +24,16 @@ public struct DBProfile : Comparable, Equatable, Hashable {
     public var serverID = ""
     public var originatorID = 0
     public var date = Date()
+    public var latitude = 0.0
+    public var longitude = 0.0
     public struct TableDescription {
         public static let id = "id"
         public static let stationID = "stationID"
         public static let serverID = "serverID"
         public static let originatorID = "originatorID"
         public static let date = "date"
+        public static let latitude = "latitude"
+        public static let longitude = "longitude"
     }
     
     struct Expressions {
@@ -38,24 +42,29 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         static let serverID = Expression<String>(TableDescription.serverID)
         static let originatorID = Expression<Int64>(TableDescription.originatorID)
         static let date = Expression<Date>(TableDescription.date)
+        static let latitude = Expression<Double>(TableDescription.latitude)
+        static let longitude = Expression<Double>(TableDescription.longitude)
     }
     
     
     public init(){}
-    public init(id: Int, stationID: Int, serverID: String, originatorID: Int, date: Date) {
+    public init(id: Int, stationID: Int, serverID: String, originatorID: Int, date: Date, latitude: Double, longitude: Double) {
         self.id = id
         self.stationID = stationID
         self.serverID = serverID
         self.originatorID = originatorID
         self.date = date
+        self.latitude = latitude
+        self.longitude = longitude
     }
-    public init(id id64: Int64, stationID stationID64: Int64, serverID: String, originatorID originatorID64: Int64, date: Date) {
+    public init(id id64: Int64, stationID stationID64: Int64, serverID: String, originatorID originatorID64: Int64, date: Date, latitude: Double, longitude: Double) {
         self.id = Int(id64)
         self.stationID = Int(stationID64)
         self.serverID = serverID
         self.originatorID = Int(originatorID64)
         self.date = date
-    }
+        self.latitude = latitude
+        self.longitude = longitude    }
     
     public static func createTable(db: Connection) throws {
         do {
@@ -65,6 +74,8 @@ public struct DBProfile : Comparable, Equatable, Hashable {
                 t.column(Expressions.serverID)
                 t.column(Expressions.originatorID)
                 t.column(Expressions.date)
+                t.column(Expressions.latitude)
+                t.column(Expressions.longitude)
             })
         } catch {
             throw DBError.TableCreateError
@@ -90,7 +101,9 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         let insertStatement = DBTable.Profiles.table.insert(Expressions.stationID <- Int64(stationID),
                                                            Expressions.serverID <- serverID,
                                                            Expressions.originatorID <- Int64(originatorID),
-                                                           Expressions.date <- date)
+                                                           Expressions.date <- date,
+                                                           Expressions.latitude <- latitude,
+                                                           Expressions.longitude <- longitude)
         do {
             let rowID = try db.run(insertStatement)
             id = Int(rowID)
@@ -139,7 +152,7 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                return DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date])
+                return DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date], latitude: item[Expressions.latitude], longitude: item[Expressions.longitude])
             }
         } catch {
             throw DBError.SearchError
@@ -152,7 +165,7 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date]))
+                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date], latitude: item[Expressions.latitude], longitude: item[Expressions.longitude]))
             }
         } catch {
             throw DBError.SearchError
@@ -166,7 +179,7 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(query)
             for item in  items {
-                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date]))
+                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date], latitude: item[Expressions.latitude], longitude: item[Expressions.longitude]))
             }
         } catch {
             throw DBError.SearchError
@@ -179,7 +192,7 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         do {
             let items = try db.prepare(DBTable.Profiles.table)
             for item in items {
-                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date]))
+                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date], latitude: item[Expressions.latitude], longitude: item[Expressions.longitude]))
             }
         } catch {
             throw DBError.SearchError
