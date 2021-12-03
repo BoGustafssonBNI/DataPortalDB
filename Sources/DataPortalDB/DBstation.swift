@@ -26,7 +26,7 @@ public struct DBstation: Equatable, Hashable {
     }
     private func decPos2Int(pos: Double) -> Int {
         let deg = Int(pos)
-        let min = Int((pos - Double(deg))*60.0/100.0)
+        let min = Int((pos - Double(deg))*60.0)
         return 100 * deg + min
     }
     private func distance(between pos1: Int, and pos2: Int) -> Int {
