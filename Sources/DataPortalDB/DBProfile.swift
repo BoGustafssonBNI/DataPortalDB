@@ -174,7 +174,6 @@ public struct DBProfile : Comparable, Equatable, Hashable {
     }
     public static func find(stationID: Int, minDate: Date, maxDate: Date, db: Connection) throws -> [DBProfile] {
         let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID) && Expressions.date >= minDate && Expressions.date <= maxDate).order(Expressions.date.asc)
-        print("query = \(query.asSQL())")
         var retArray = [DBProfile]()
         do {
             let items = try db.prepare(query)
