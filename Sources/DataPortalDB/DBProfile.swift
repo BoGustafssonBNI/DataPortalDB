@@ -9,9 +9,6 @@
 import Foundation
 import SQLite
 
-
-
-
 public struct DBProfile : Comparable, Equatable, Hashable {
     public static func < (lhs: DBProfile, rhs: DBProfile) -> Bool {
         return lhs.date < rhs.date
@@ -48,6 +45,15 @@ public struct DBProfile : Comparable, Equatable, Hashable {
     
     
     public init(){}
+    public init(id: Int, stationID: Int, cruise: String, stationNumber: Int, date: Date, latitude: Double, longitude: Double) {
+        self.id = id
+        self.stationID = stationID
+        self.serverID = cruise
+        self.originatorID = stationNumber
+        self.date = date
+        self.latitude = latitude
+        self.longitude = longitude
+    }
     public init(id: Int, stationID: Int, serverID: String, originatorID: Int, date: Date, latitude: Double, longitude: Double) {
         self.id = id
         self.stationID = stationID
