@@ -98,6 +98,7 @@ public struct DBParameter: Equatable, Hashable {
             }
             do {
                 try insert(db: db)
+                print("New parameter-> id: \(self.id), name: \(self.name)")
             } catch {
                 throw DBError.InsertError
             }
