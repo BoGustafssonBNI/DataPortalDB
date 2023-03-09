@@ -127,6 +127,15 @@ public struct DBData: Comparable, Equatable, Hashable {
         }
     }
     
+    public static func delete(dbProfileID: Int, dbTable: DBTable, db: Connection) throws {
+        let query = dbTable.table.filter(Expressions.profileID == Int64(dbProfileID))
+        do {
+            _ = try db.run(query.delete())
+         } catch _ {
+            throw DBError.DeleteError
+        }
+    }
+    
     public mutating func existOrInsert(dbTable: DBTable, db: Connection) throws {
         let expression = Expressions.profileID == Int64(profileID) && Expressions.depthID == Int64(depthID) && Expressions.parameterID == Int64(parameterID)
         let query = dbTable.table.select(distinct: Expressions.id).filter(expression)
