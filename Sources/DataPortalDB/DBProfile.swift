@@ -208,6 +208,27 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         }
         return retArray
     }
+    
+    public static func find(stationID: Int, date: Date, timeInterval: Double = 43200.0, latitude: Double, latitudeInterval: Double = 0.0085, longitude: Double, longitudeInterval: Double = 0.0085, db: Connection) throws -> [DBProfile] {
+        let minDate = date.addingTimeInterval(-timeInterval)
+        let maxDate = date.addingTimeInterval(timeInterval)
+        let latMin = latitude - latitudeInterval
+        let latMax = latitude + latitudeInterval
+        let lonMin = longitude - longitudeInterval
+        let lonMax = longitude + longitudeInterval
+        let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID) && Expressions.date >= minDate && Expressions.date <= maxDate && Expressions.latitude >= latMin && Expressions.latitude <= latMax  && Expressions.longitude >= lonMin && Expressions.longitude <= lonMax).order(Expressions.date.asc)
+        var retArray = [DBProfile]()
+        do {
+            let items = try db.prepare(query)
+            for item in  items {
+                retArray.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date], latitude: item[Expressions.latitude], longitude: item[Expressions.longitude]))
+            }
+        } catch {
+            throw DBError.SearchError
+        }
+        return retArray
+
+    }
 
     public static func findAll(db: Connection) throws -> [DBProfile] {
          var retArray = [DBProfile]()
