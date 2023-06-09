@@ -118,10 +118,16 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         }
     }
     
-    public func delete(db: Connection, removeData: Bool = false, dbDataTable: DBTable = DBTable.DataRecords) throws -> Void {
+    public func delete(db: Connection, removeData: Bool = false, dbDataTable: DBTable = DBTable.DataRecords, dbSDataTable: DBTable? = nil, dbODataTable: DBTable? = nil ) throws -> Void {
         let query = DBTable.Profiles.table.filter(Expressions.id == Int64(id))
         do {
             try DBData.delete(dbProfileID: id, dbTable: dbDataTable, db: db)
+            if let dbSDataTable = dbSDataTable {
+                try DBSData.delete(dbProfileID: id, dbTable: dbSDataTable, db: db)
+            }
+            if let dbODataTable = dbODataTable {
+                try DBOData.delete(dbProfileID: id, dbTable: dbODataTable, db: db)
+            }
             let tmp = try db.run(query.delete())
             guard tmp == 1 else {
                 throw DBError.DeleteError
