@@ -186,9 +186,66 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         return retArray
     }
     
-//    public static func findDaily(stationID: Int, db: Connection) -> [[DBProfile]] {
-//        
-//    }
+    public static func find(stationID: Int, for timeAverageType: DBProfile.TimeAverageTypes, db: Connection) throws -> [[DBProfile]] {
+        let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID)).order(Expressions.date.asc)
+        var profiles = [DBProfile]()
+        var result = [[DBProfile]]()
+        do {
+            let items = try db.prepare(query)
+            for item in  items {
+                profiles.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date], latitude: item[Expressions.latitude], longitude: item[Expressions.longitude]))
+            }
+        } catch {
+            throw DBError.SearchError
+        }
+        if let firstProfile = profiles.first, let lastProfile = profiles.last {
+            switch timeAverageType {
+            case .Daily(let interval):
+                var pTemp = [firstProfile]
+                for i in 1..<profiles.count {
+                    if pTemp.first!.dayNo <= profiles[i].dayNo + interval - 1 {
+                        pTemp.append(profiles[i])
+                    } else {
+                        result.append(pTemp)
+                        pTemp = [profiles[i]]
+                    }
+                }
+            case .Monthly(let interval):
+                var pTemp = [firstProfile]
+                var oldMonthNumber = (firstProfile.year * 12 + firstProfile.month - 1)/interval
+                for i in 1..<profiles.count {
+                    let newMonthNumber = (profiles[i].year * 12 + profiles[i].month - 1)/interval
+                    if oldMonthNumber == newMonthNumber {
+                        pTemp.append(profiles[i])
+                    } else {
+                        result.append(pTemp)
+                        pTemp = [profiles[i]]
+                        oldMonthNumber = newMonthNumber
+                    }
+                }
+            case .Annual(let interval):
+                var pTemp = [firstProfile]
+                for i in 1..<profiles.count {
+                    if pTemp.first!.year <= profiles[i].year + interval - 1 {
+                        pTemp.append(profiles[i])
+                    } else {
+                        result.append(pTemp)
+                        pTemp = [profiles[i]]
+                    }
+                }
+            case .Winter(let startMonth, let endMonth):
+                <#code#>
+            case .Summer(let startMonth, let endMonth):
+                <#code#>
+            case .Seasonal:
+                <#code#>
+            case .All:
+                <#code#>
+            }
+        }
+        return result
+
+    }
     
     public static func find(stationID: Int, minDate: Date, maxDate: Date, db: Connection) throws -> [DBProfile] {
         let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID) && Expressions.date >= minDate && Expressions.date <= maxDate).order(Expressions.date.asc)
@@ -305,6 +362,39 @@ public struct DBProfile : Comparable, Equatable, Hashable {
     public var decimalYear : Double {
         get {
             return Double(dayNo) / 365.245 + 1850
+        }
+    }
+    
+    public enum TimeAverageTypes: Equatable, Hashable {
+        public static func allCases(annualInterval : Int = 1, monthlyInterval : Int = 1, dailyInterval : Int = 1) -> [DBProfile.TimeAverageTypes] {
+                return [.All, .Seasonal, .Annual(interval: 1), .Monthly(interval: 1), .Daily(interval: 1), .Winter(startMonth: 12, endMonth: 2), .Summer(startMonth: 6, endMonth: 9)]
+        }
+        case Daily(interval: Int = 1)
+        case Monthly(interval: Int = 1)
+        case Annual(interval: Int = 1)
+        case Winter(startMonth: Int = 12, endMonth: Int = 2)
+        case Summer(startMonth: Int = 6, endMonth: Int = 9)
+        case Seasonal
+        case All
+        public var description : String {
+            get {
+                switch self {
+                case .Daily(let dayInterval):
+                    return dayInterval == 1 ? "Daily" : "\(dayInterval) days"
+                case .Monthly:
+                    return "Monthly"
+                case .Annual(let yearInterval):
+                    return yearInterval == 1 ? "Annual" : "\(yearInterval) years"
+                case .Winter(let startMonth, let endMonth):
+                    return "Winter (\(startMonth) - \(endMonth))"
+                case .Summer(let startMonth, let endMonth):
+                    return "Summer (\(startMonth) - \(endMonth))"
+                case .Seasonal:
+                    return "Seasonal"
+                case .All:
+                    return "All"
+                }
+            }
         }
     }
 
