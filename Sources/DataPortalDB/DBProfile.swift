@@ -185,6 +185,11 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         }
         return retArray
     }
+    
+//    public static func findDaily(stationID: Int, db: Connection) -> [[DBProfile]] {
+//        
+//    }
+    
     public static func find(stationID: Int, minDate: Date, maxDate: Date, db: Connection) throws -> [DBProfile] {
         let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID) && Expressions.date >= minDate && Expressions.date <= maxDate).order(Expressions.date.asc)
         var retArray = [DBProfile]()
@@ -267,5 +272,49 @@ public struct DBProfile : Comparable, Equatable, Hashable {
             throw DBError.SearchError
         }
     }
+    private static let ReferenceDate1850 = DateComponents(calendar: Calendar.UTCCalendar, year: 1849, month: 12, day: 31, hour: 0, minute: 0, second: 0).date!
+    
+    public var dayNo : Int {
+        get {
+            return Int(self.date.timeIntervalSince(DBProfile.ReferenceDate1850) / 86400.0)
+        }
+    }
+    public var ymd : [Int] {
+        get {
+            let year = Calendar.UTCCalendar.component(.year, from: self.date)
+            let month = Calendar.UTCCalendar.component(.month, from: self.date)
+            let day = Calendar.UTCCalendar.component(.day, from: self.date)
+            return [year, month, day]
+        }
+    }
+    public var year : Int {
+        get {
+            return Calendar.UTCCalendar.component(.year, from: self.date)
+        }
+    }
+    public var month : Int {
+        get {
+            return Calendar.UTCCalendar.component(.month, from: self.date)
+        }
+    }
+    public var day : Int {
+        get {
+            return Calendar.UTCCalendar.component(.day, from: self.date)
+        }
+    }
+    public var decimalYear : Double {
+        get {
+            return Double(dayNo) / 365.245 + 1850
+        }
+    }
 
+}
+extension Calendar {
+    fileprivate static var UTCCalendar : Calendar {
+        get {
+            var cal = Calendar.init(identifier: .iso8601)
+            cal.timeZone = TimeZone(identifier: "UTC")!
+            return cal
+        }
+    }
 }
