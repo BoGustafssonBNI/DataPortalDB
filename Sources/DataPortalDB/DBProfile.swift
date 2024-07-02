@@ -189,7 +189,6 @@ public struct DBProfile : Comparable, Equatable, Hashable {
     public static func find(stationID: Int, for timeAverageType: DBProfile.TimeAverageTypes, db: Connection) throws -> [[DBProfile]] {
         let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID)).order(Expressions.date.asc)
         var profiles = [DBProfile]()
-        var result = [[DBProfile]]()
         do {
             let items = try db.prepare(query)
             for item in  items {
@@ -198,73 +197,7 @@ public struct DBProfile : Comparable, Equatable, Hashable {
         } catch {
             throw DBError.SearchError
         }
-        if let firstProfile = profiles.first, let lastProfile = profiles.last {
-            switch timeAverageType {
-            case .Daily(let interval):
-                var pTemp = [firstProfile]
-                for i in 1..<profiles.count {
-                    if pTemp.first!.dayNo <= profiles[i].dayNo + interval - 1 {
-                        pTemp.append(profiles[i])
-                    } else {
-                        result.append(pTemp)
-                        pTemp = [profiles[i]]
-                    }
-                }
-            case .Monthly(let interval):
-                var pTemp = [firstProfile]
-                var oldMonthNumber = (firstProfile.year * 12 + firstProfile.month - 1)/interval
-                for i in 1..<profiles.count {
-                    let newMonthNumber = (profiles[i].year * 12 + profiles[i].month - 1)/interval
-                    if oldMonthNumber == newMonthNumber {
-                        pTemp.append(profiles[i])
-                    } else {
-                        result.append(pTemp)
-                        pTemp = [profiles[i]]
-                        oldMonthNumber = newMonthNumber
-                    }
-                }
-            case .Annual(let interval):
-                var pTemp = [firstProfile]
-                for i in 1..<profiles.count {
-                    if pTemp.first!.year <= profiles[i].year + interval - 1 {
-                        pTemp.append(profiles[i])
-                    } else {
-                        result.append(pTemp)
-                        pTemp = [profiles[i]]
-                    }
-                }
-            case .Winter(let startMonth, let endMonth), .Summer(let startMonth, let endMonth):
-                let firstYear = firstProfile.year
-                let lastYear = lastProfile.year
-                for year in firstYear...lastYear {
-                    let start : DateComponents
-                    if startMonth > endMonth {
-                        start = DateComponents.init(calendar: Calendar.UTCCalendar, year: year-1, month: startMonth, day: 1, hour: 0, minute: 0, second: 0, nanosecond: 0)
-                    } else {
-                        start = DateComponents.init(calendar: Calendar.UTCCalendar, year: year, month: startMonth, day: 1, hour: 0, minute: 0, second: 0, nanosecond: 0)
-                    }
-                    let firstDate = Calendar.UTCCalendar.date(from: start)!
-                    let end : DateComponents
-                    if endMonth < 12 {
-                       end = DateComponents.init(calendar: Calendar.UTCCalendar, year: year, month: endMonth+1, day: 1, hour: 0, minute: 0, second: 0, nanosecond: 0)
-                    } else {
-                        end = DateComponents.init(calendar: Calendar.UTCCalendar, year: year+1, month: 1, day: 1, hour: 0, minute: 0, second: 0, nanosecond: 0)
-                    }
-                    let endDate = Calendar.UTCCalendar.date(from: end)!
-                    let pTemp = profiles.filter({$0.date >= firstDate && $0.date < endDate})
-                    result.append(pTemp)
-                }
-             case .Seasonal:
-                for month in 1...12 {
-                    let pTemp = profiles.filter({$0.month == month})
-                    result.append(pTemp)
-                }
-            case .All:
-                <#code#>
-            }
-        }
-        return result
-
+        return profiles.toAverage(for: timeAverageType)
     }
     
     public static func find(stationID: Int, minDate: Date, maxDate: Date, db: Connection) throws -> [DBProfile] {
