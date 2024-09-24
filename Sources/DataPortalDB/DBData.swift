@@ -35,12 +35,12 @@ public struct DBData: Comparable, Equatable, Hashable {
     }
     
     struct Expressions {
-        static let id = Expression<Int64>(TableDescription.id)
-        static let stationID = Expression<Int64>(TableDescription.stationID)
-        static let profileID = Expression<Int64>(TableDescription.profileID)
-        static let depthID = Expression<Int64>(TableDescription.depthID)
-        static let parameterID = Expression<Int64>(TableDescription.parameterID)
-        static let value = Expression<Double>(TableDescription.value)
+        static let id = SQLite.Expression<Int64>(TableDescription.id)
+        static let stationID = SQLite.Expression<Int64>(TableDescription.stationID)
+        static let profileID = SQLite.Expression<Int64>(TableDescription.profileID)
+        static let depthID = SQLite.Expression<Int64>(TableDescription.depthID)
+        static let parameterID = SQLite.Expression<Int64>(TableDescription.parameterID)
+        static let value = SQLite.Expression<Double>(TableDescription.value)
     }
     
     public init(){}

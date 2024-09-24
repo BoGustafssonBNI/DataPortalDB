@@ -74,12 +74,12 @@ public struct DBstation: Equatable, Hashable {
     }
     
     struct Expressions {
-        static let id = Expression<Int64>(TableDescription.id)
-        static let name = Expression<String>(TableDescription.name)
-        static let intLat = Expression<Int64>(TableDescription.intLat)
-        static let intLon = Expression<Int64>(TableDescription.intLon)
-        static let intLatDist = Expression<Int64>(TableDescription.intLatDist)
-        static let intLonDist = Expression<Int64>(TableDescription.intLonDist)
+        static let id = SQLite.Expression<Int64>(TableDescription.id)
+        static let name = SQLite.Expression<String>(TableDescription.name)
+        static let intLat = SQLite.Expression<Int64>(TableDescription.intLat)
+        static let intLon = SQLite.Expression<Int64>(TableDescription.intLon)
+        static let intLatDist = SQLite.Expression<Int64>(TableDescription.intLatDist)
+        static let intLonDist = SQLite.Expression<Int64>(TableDescription.intLonDist)
     }
     
     
@@ -222,7 +222,7 @@ public struct DBstation: Equatable, Hashable {
         let query = DBTable.Stations.table.filter(Expressions.id == Int64(id))
         
         do {
-            let valueExpression : Expression<Int64>
+            let valueExpression : SQLite.Expression<Int64>
             switch variable {
             case .intLat:
                 valueExpression = Expressions.intLat

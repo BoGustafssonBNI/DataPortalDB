@@ -28,10 +28,10 @@ public struct DBSalinities: Comparable, Equatable, Hashable {
     }
     
     struct Expressions {
-        static let id = Expression<Int64>(TableDescription.id)
-        static let stationID = Expression<Int64>(TableDescription.stationID)
-        static let level = Expression<Int64>(TableDescription.level)
-        static let value = Expression<Double>(TableDescription.value)
+        static let id = SQLite.Expression<Int64>(TableDescription.id)
+        static let stationID = SQLite.Expression<Int64>(TableDescription.stationID)
+        static let level = SQLite.Expression<Int64>(TableDescription.level)
+        static let value = SQLite.Expression<Double>(TableDescription.value)
     }
     
     public init(){}

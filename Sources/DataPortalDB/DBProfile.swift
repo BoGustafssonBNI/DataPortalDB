@@ -34,13 +34,13 @@ public struct DBProfile : Comparable, Equatable, Hashable {
     }
     
     struct Expressions {
-        static let id = Expression<Int64>(TableDescription.id)
-        static let stationID = Expression<Int64>(TableDescription.stationID)
-        static let serverID = Expression<String>(TableDescription.serverID)
-        static let originatorID = Expression<Int64>(TableDescription.originatorID)
-        static let date = Expression<Date>(TableDescription.date)
-        static let latitude = Expression<Double>(TableDescription.latitude)
-        static let longitude = Expression<Double>(TableDescription.longitude)
+        static let id = SQLite.Expression<Int64>(TableDescription.id)
+        static let stationID = SQLite.Expression<Int64>(TableDescription.stationID)
+        static let serverID = SQLite.Expression<String>(TableDescription.serverID)
+        static let originatorID = SQLite.Expression<Int64>(TableDescription.originatorID)
+        static let date = SQLite.Expression<Date>(TableDescription.date)
+        static let latitude = SQLite.Expression<Double>(TableDescription.latitude)
+        static let longitude = SQLite.Expression<Double>(TableDescription.longitude)
     }
     
     

@@ -36,13 +36,13 @@ public struct DBOData: Comparable, Equatable, Hashable {
     }
     
     struct Expressions {
-        static let id = Expression<Int64>(TableDescription.id)
-        static let stationID = Expression<Int64>(TableDescription.stationID)
-        static let profileID = Expression<Int64>(TableDescription.profileID)
-        static let oxygenID = Expression<Int64>(TableDescription.oxygenID)
-        static let parameterID = Expression<Int64>(TableDescription.parameterID)
-        static let depth = Expression<Double>(TableDescription.depth)
-        static let value = Expression<Double>(TableDescription.value)
+        static let id = SQLite.Expression<Int64>(TableDescription.id)
+        static let stationID = SQLite.Expression<Int64>(TableDescription.stationID)
+        static let profileID = SQLite.Expression<Int64>(TableDescription.profileID)
+        static let oxygenID = SQLite.Expression<Int64>(TableDescription.oxygenID)
+        static let parameterID = SQLite.Expression<Int64>(TableDescription.parameterID)
+        static let depth = SQLite.Expression<Double>(TableDescription.depth)
+        static let value = SQLite.Expression<Double>(TableDescription.value)
     }
     
     public init(){}

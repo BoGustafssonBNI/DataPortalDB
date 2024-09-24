@@ -23,9 +23,9 @@ public struct DBParameter: Equatable, Hashable {
     }
     
     struct Expressions {
-        static let id = Expression<Int64>(TableDescription.id)
-        static let name = Expression<String>(TableDescription.name)
-        static let canBeNegative = Expression<Bool>(TableDescription.canBeNegative)
+        static let id = SQLite.Expression<Int64>(TableDescription.id)
+        static let name = SQLite.Expression<String>(TableDescription.name)
+        static let canBeNegative = SQLite.Expression<Bool>(TableDescription.canBeNegative)
      }
     
     
