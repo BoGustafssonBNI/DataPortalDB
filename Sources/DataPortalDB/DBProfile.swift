@@ -350,6 +350,33 @@ public struct DBProfile : Comparable, Equatable, Hashable {
             }
         }
     }
+    
+    public struct TimeAverageProfiles {
+        public var dailyProfiles: [[DBProfile]]
+        public var monthlyProfiles: [[[DBProfile]]]
+        public var annualProfiles: [[[[DBProfile]]]]
+        public var winterProfiles: [[[[DBProfile]]]]
+        public var summerProfiles: [[[[DBProfile]]]]
+        public var seasonalProfiles: [[[[DBProfile]]]]
+        public init(stationID: Int, firstWinterMonth: Int = 12, lastWinterMonth: Int = 2, firstSummerMonth: Int = 6, lastSummerMonth: Int = 9, db: Connection) throws {
+            let query = DBTable.Profiles.table.filter(Expressions.stationID == Int64(stationID)).order(Expressions.date.asc)
+            var profiles = [DBProfile]()
+            do {
+                let items = try db.prepare(query)
+                for item in  items {
+                    profiles.append(DBProfile(id: item[Expressions.id], stationID: item[Expressions.stationID], serverID: item[Expressions.serverID], originatorID: item[Expressions.originatorID], date: item[Expressions.date], latitude: item[Expressions.latitude], longitude: item[Expressions.longitude]))
+                }
+            } catch {
+                throw DBError.SearchError
+            }
+            dailyProfiles = profiles.toDailyAverage()
+            monthlyProfiles = profiles.toMonthlyAverage(dailyAverageProfiles: dailyProfiles)
+            annualProfiles = profiles.toAnnualAverage(for: .Annual(interval: 1), monthlyAverageProfiles: monthlyProfiles)
+            winterProfiles = profiles.toAnnualAverage(for: .Winter(startMonth: firstWinterMonth, endMonth: lastWinterMonth), monthlyAverageProfiles: monthlyProfiles)
+            summerProfiles = profiles.toAnnualAverage(for: .Summer(startMonth: firstSummerMonth, endMonth: lastSummerMonth), monthlyAverageProfiles: monthlyProfiles)
+            seasonalProfiles = profiles.toAnnualAverage(for: .Seasonal, monthlyAverageProfiles: monthlyProfiles)
+        }
+    }
 
 }
 extension Calendar {
