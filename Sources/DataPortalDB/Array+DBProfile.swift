@@ -15,7 +15,7 @@ extension Array where Element == DBProfile {
             case .Daily(let interval):
                 var pTemp = [firstProfile]
                 for i in 1..<self.count {
-                    if pTemp.first!.dayNo <= self[i].dayNo + interval - 1 {
+                    if self[i].dayNo <= pTemp.first!.dayNo  + interval - 1 {
                         pTemp.append(self[i])
                     } else {
                         result.append(pTemp)
@@ -38,7 +38,7 @@ extension Array where Element == DBProfile {
             case .Annual(let interval):
                 var pTemp = [firstProfile]
                 for i in 1..<self.count {
-                    if pTemp.first!.year <= self[i].year + interval - 1 {
+                    if self[i].year <= pTemp.first!.year + interval - 1 {
                         pTemp.append(self[i])
                     } else {
                         result.append(pTemp)
