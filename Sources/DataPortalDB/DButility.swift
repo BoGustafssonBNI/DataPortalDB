@@ -22,6 +22,9 @@ public struct DBTable {
     public static let Profiles = DBTable(tableName: "profiles")
     public static let Parameter = DBTable(tableName: "parameters")
     public var tableName = String()
+    public init(tableName: String) {
+        self.tableName = tableName
+    }
     public var table : Table {
         get {
             return Table(tableName)
