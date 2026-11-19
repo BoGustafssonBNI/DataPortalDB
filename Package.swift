@@ -1,22 +1,30 @@
-// swift-tools-version:5.1
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swift-tools-version:5.7
 import PackageDescription
 
 let package = Package(
     name: "DataPortalDB",
-    products: [
-         .library(
-            name: "DataPortalDB",
-            targets: ["DataPortalDB"])
+    platforms: [
+        .macOS(.v13), .iOS(.v16),
     ],
-    dependencies: [.package(url: "https://github.com/stephencelis/SQLite.swift.git", Package.Dependency.Requirement.branch("master"))],
+    products: [
+        .library(
+            name: "DataPortalDB",
+            targets: ["DataPortalDB"]
+        ),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.17.0")
+    ],
     targets: [
         .target(
             name: "DataPortalDB",
-            dependencies: ["SQLite"]),
+            dependencies: [
+                .product(name: "SQLite", package: "SQLite.swift")
+            ]
+        ),
         .testTarget(
             name: "DataPortalDBTests",
-            dependencies: ["DataPortalDB"])
+            dependencies: ["DataPortalDB"]
+        )
     ]
 )
